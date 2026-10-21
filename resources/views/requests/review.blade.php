@@ -6,15 +6,16 @@
     <meta name="referrer" content="no-referrer">
     <title>{{ ucfirst($requestType) }} request review</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f1f5f9; color: #0f172a; margin: 0; padding: 32px 16px; }
+        body { font-family: Arial, sans-serif; background: #f0fdf4; color: #0b2f23; margin: 0; padding: 32px 16px; }
         main { max-width: 560px; margin: 0 auto; padding: 28px; background: white; border-radius: 12px; }
         p { line-height: 1.6; overflow-wrap: anywhere; }
-        button { border: 0; border-radius: 6px; padding: 12px 20px; color: white; background: {{ $decision === 'approve' ? '#047857' : '#be123c' }}; cursor: pointer; font-size: 16px; }
+        button { border: 0; border-radius: 6px; padding: 12px 20px; color: white; background: {{ $decision === 'approve' ? '#166534' : '#be123c' }}; cursor: pointer; font-size: 16px; }
         .error { color: #be123c; }
     </style>
 </head>
 <body>
 <main>
+    <img src="{{ asset('images/abj-builders-logo.png') }}" alt="ABJ Builders" style="display:block;width:220px;max-width:100%;height:auto;margin:0 auto 24px;">
     <h1>{{ ucfirst($requestType) }} request review</h1>
     <p>Employee: <strong>{{ $item->employee?->name ?? 'Deleted employee' }}</strong></p>
     @include('emails.requests.details', ['request' => $item])

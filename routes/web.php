@@ -1,14 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\PasswordRecoveryCodeController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\PermissionRequestController;
 use App\Http\Controllers\PettyCashController;
 use App\Http\Controllers\RequestReviewController;
+use Illuminate\Support\Facades\Route;
 
 Route::match(['get', 'post'], '/request-review/{kind}/{id}/{decision}', RequestReviewController::class)
     ->whereIn('kind', ['leave', 'permission'])
@@ -21,11 +23,22 @@ Route::get('/', fn () => auth()->check() ? redirect()->route('dashboard') : redi
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+
+    Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('password.verify');
+    Route::get('/reset-password', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'update'])
+        ->middleware('throttle:6,1')
+        ->name('password.update');
 });
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/admin/password-recovery-codes', [PasswordRecoveryCodeController::class, 'index'])->name('admin.password-recovery-codes.index');
+    Route::post('/admin/password-recovery-codes', [PasswordRecoveryCodeController::class, 'store'])->name('admin.password-recovery-codes.store');
 
     Route::resource('employees', EmployeeController::class)->except(['show']);
 
