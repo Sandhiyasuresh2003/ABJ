@@ -1,0 +1,11 @@
+@extends('layouts.app')@section('title',$editing?'Edit attendance':'Record attendance')@section('breadcrumb','Attendance')@section('heading',$editing?'Edit attendance':'Record attendance')
+@section('content')
+<div class="max-w-3xl rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-8"><form method="POST" action="{{ $editing?route('attendance.update',$record):route('attendance.store') }}">@csrf @if($editing)@method('PUT')@endif
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2"><div class="sm:col-span-2"><label class="mb-1.5 block text-sm font-semibold">Employee *</label><select class="field" name="employee_id" required><option value="">Select employee</option>@foreach($employees as $employee)<option value="{{ $employee->id }}" @selected(old('employee_id',$record->employee_id)==$employee->id)>{{ $employee->employee_code }} — {{ $employee->name }}</option>@endforeach</select></div>
+<div><label class="mb-1.5 block text-sm font-semibold">Date *</label><input class="field" type="date" name="attendance_date" value="{{ old('attendance_date',$record->attendance_date?->format('Y-m-d')??now()->toDateString()) }}" required></div>
+<div><label class="mb-1.5 block text-sm font-semibold">Status *</label><select class="field" name="status" required>@foreach(['Present','Late','Absent','Half Day','Leave'] as $status)<option @selected(old('status',$record->status??'Present')===$status)>{{ $status }}</option>@endforeach</select></div>
+<div><label class="mb-1.5 block text-sm font-semibold">Check-in time</label><input class="field" type="time" name="check_in" value="{{ old('check_in',$record->check_in?substr($record->check_in,0,5):'') }}"></div>
+<div><label class="mb-1.5 block text-sm font-semibold">Check-out time</label><input class="field" type="time" name="check_out" value="{{ old('check_out',$record->check_out?substr($record->check_out,0,5):'') }}"></div>
+<div class="sm:col-span-2"><label class="mb-1.5 block text-sm font-semibold">Notes</label><textarea class="field" rows="3" name="notes">{{ old('notes',$record->notes) }}</textarea></div></div>
+<div class="mt-6 flex justify-end gap-3"><a class="btn btn-light" href="{{ route('attendance.index') }}">Cancel</a><button class="btn btn-primary">Save attendance</button></div></form></div>
+@endsection
