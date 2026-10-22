@@ -12,21 +12,18 @@
 <body class="min-h-screen bg-slate-50 text-slate-800">
 <div class="min-h-screen lg:flex">
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-navy-950 text-white transition-transform lg:static lg:translate-x-0">
-<div class="flex h-20 items-center border-b border-white/10 px-5"><img class="h-16 w-full object-contain" src="{{ asset('images/abj-builders-logo.png') }}" alt="ABJ Builders"></div>
+<a href="{{ route('agropro.home') }}" class="flex h-20 items-center border-b border-white/10 px-5"><img class="h-16 w-full object-contain" src="{{ asset('images/abj-builders-logo.png') }}" alt="ABJ Builders"></a>
 <div class="px-3 pt-5"><p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.2em] text-slate-500">Workspace</p>
-<a class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">▦ Dashboard</a>
-<a class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}" href="{{ route('employees.index') }}">♙ Employees</a>
-<a class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}" href="{{ route('attendance.index') }}">◷ Attendance</a>
-<a class="nav-item {{ request()->routeIs('leaves.*') ? 'active' : '' }}" href="{{ route('leaves.index') }}">▣ Leave requests</a>
-<a class="nav-item {{ request()->routeIs('permissions.*') ? 'active' : '' }}" href="{{ route('permissions.index') }}">◴ Permissions</a>
-<a class="nav-item {{ request()->routeIs('petty-cash.*') ? 'active' : '' }}" href="{{ route('petty-cash.index') }}">₹ Petty cash</a></div>
-<a class="nav-item {{ request()->routeIs('admin.password-recovery-codes.*') ? 'active' : '' }}" href="{{ route('admin.password-recovery-codes.index') }}">♧ Recovery codes</a>
+@foreach(config('sidebar.roles.'.auth()->user()->role, []) as $menu)
+<a class="nav-item {{ $menu['route'] === 'admin.pending' ? (request()->route('module') === ($menu['params']['module'] ?? null) ? 'active' : '') : (request()->routeIs($menu['active']) ? 'active' : '') }}" href="{{ route($menu['route'], $menu['params'] ?? []) }}">{{ $menu['icon'] }} {{ $menu['label'] }}</a>
+@endforeach
+</div>
 <div class="mt-auto p-4"><div class="rounded-xl border border-white/10 bg-white/[.04] p-3 text-xs leading-5 text-slate-400">ABJ Builders · Internal management system</div>
-<div class="mt-4 flex items-center gap-3 border-t border-white/10 pt-4"><div class="flex h-9 w-9 items-center justify-center rounded-full bg-white font-bold text-navy-900">{{ strtoupper(substr(auth()->user()->name,0,1)) }}</div><div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold">{{ auth()->user()->name }}</p><p class="text-xs text-slate-400">Administrator</p></div><form method="POST" action="{{ route('logout') }}">@csrf<button class="text-xs text-slate-400 hover:text-white">Logout</button></form></div></div>
+<div class="mt-4 flex items-center gap-3 border-t border-white/10 pt-4"><div class="flex h-9 w-9 items-center justify-center rounded-full bg-white font-bold text-navy-900">{{ strtoupper(substr(auth()->user()->name,0,1)) }}</div><div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold">{{ auth()->user()->name }}</p><p class="text-xs capitalize text-slate-400">{{ auth()->user()->role }}</p></div><form method="POST" action="{{ route('logout') }}">@csrf<button class="text-xs text-slate-400 hover:text-white">Logout</button></form></div></div>
 </aside>
 <div id="backdrop" class="fixed inset-0 z-30 hidden bg-navy-950/50 lg:hidden"></div>
 <main class="min-w-0 flex-1 app-background">
-<header class="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-7"><div class="flex items-center gap-3"><button id="openMenu" class="rounded-lg border border-slate-200 p-2 lg:hidden">☰</button><div><p class="text-xs text-slate-400">ABJ Builders / @yield('breadcrumb','Dashboard')</p><h1 class="mt-1 font-bold text-navy-950">@yield('heading','Dashboard')</h1></div></div><span class="hidden rounded-full border border-gold-500/30 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 sm:inline">Admin workspace</span></header>
+<header class="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-7"><div class="flex items-center gap-3"><button id="openMenu" class="rounded-lg border border-slate-200 p-2 lg:hidden">☰</button><div><p class="text-xs text-slate-400">ABJ Builders / @yield('breadcrumb','Dashboard')</p><h1 class="mt-1 font-bold text-navy-950">@yield('heading','Dashboard')</h1></div></div><span class="hidden rounded-full border border-gold-500/30 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 sm:inline">{{ ucfirst(auth()->user()->role) }} workspace</span></header>
 <div class="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-7 xl:p-9">
 @if (session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">{{ session('success') }}</div>@endif
 @if ($errors->any())<div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"><p class="font-semibold">Please correct the following:</p><ul class="mt-1 list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif

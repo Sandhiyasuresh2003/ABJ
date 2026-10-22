@@ -29,11 +29,15 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->role !== 'admin') {
+        if (! in_array($request->user()->role, ['admin', 'owner', 'employee'], true)) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            throw ValidationException::withMessages(['email' => 'This account does not have administrator access.']);
+            throw ValidationException::withMessages(['email' => 'This account role does not have portal access.']);
+        }
+
+        if ($request->user()->role === 'employee') {
+            return redirect()->route('employee.workspace');
         }
 
         return redirect()->intended(route('dashboard'));

@@ -24,7 +24,22 @@ class LeaveRequestController extends Controller
 
     public function create(): View
     {
-        return view('requests.form', ['employees' => Employee::where('employment_status', 'Active')->orderBy('name')->get(), 'kind' => 'leave']);
+        return view('requests.form', [
+            'employees' => Employee::where('employment_status', 'Active')->orderBy('name')->get(),
+            'kind' => 'leave',
+            'editing' => false,
+            'requestRecord' => new LeaveRequest(),
+        ]);
+    }
+
+    public function edit(LeaveRequest $leaveRequest): View
+    {
+        return view('requests.form', [
+            'employees' => Employee::orderBy('name')->get(),
+            'kind' => 'leave',
+            'editing' => true,
+            'requestRecord' => $leaveRequest,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -48,6 +63,26 @@ class LeaveRequestController extends Controller
         Mail::to(config('requests.md_email'))->send(new RequestApprovalMail($leaveRequest, 'leave'));
 
         return redirect()->route('leaves.index')->with('success', 'Leave request created and marked pending.');
+    }
+
+    public function update(Request $request, LeaveRequest $leaveRequest): RedirectResponse
+    {
+        $data = $request->validate([
+            'employee_id' => ['required', 'exists:employees,id'],
+            'leave_type' => ['required', Rule::in(['Casual Leave', 'Sick Leave', 'Earned Leave', 'Unpaid Leave', 'Other'])],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $employee = Employee::findOrFail($data['employee_id']);
+        if (blank($employee->email)) {
+            throw ValidationException::withMessages(['employee_id' => 'The selected employee does not have an email address.']);
+        }
+
+        $leaveRequest->update($data);
+
+        return redirect()->route('leaves.index')->with('success', 'Leave request updated.');
     }
 
     public function status(Request $request, LeaveRequest $leaveRequest): RedirectResponse
