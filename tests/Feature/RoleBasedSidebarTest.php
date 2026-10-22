@@ -18,13 +18,13 @@ class RoleBasedSidebarTest extends TestCase
             ->assertOk();
 
         $adminLabels = array_column(config('sidebar.roles.admin'), 'label');
-        $this->assertSame(['Attendance', 'Employees', 'Leave Request', 'Permissions', 'Petty Cash', 'Properties', 'Recovery codes'], $adminLabels);
+        $this->assertSame(['Leads', 'Attendance', 'Employees', 'Leave Request', 'Permissions', 'Petty Cash', 'Properties', 'Recovery codes'], $adminLabels);
 
         foreach ($adminLabels as $label) {
             $response->assertSee($label);
         }
 
-        foreach (['Leads', 'Bookings', 'Reports', 'Settings'] as $label) {
+        foreach (['Bookings', 'Reports', 'Settings'] as $label) {
             $response->assertDontSee('>'.$label.'</a>', false);
         }
 
@@ -84,9 +84,7 @@ class RoleBasedSidebarTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('admin.pending', ['module' => 'leads']))
-            ->assertOk()
-            ->assertSee('Leads module')
-            ->assertSee('Coming soon');
+            ->assertRedirect(route('leads.dashboard'));
 
         $this->actingAs(User::factory()->create(['role' => 'employee']))
             ->get(route('admin.pending', ['module' => 'leads']))
@@ -117,7 +115,8 @@ class RoleBasedSidebarTest extends TestCase
         $this->get(route('leaves.index'))->assertOk();
         $this->get(route('permissions.index'))->assertOk();
         $this->get(route('admin.password-recovery-codes.index'))->assertOk();
-        foreach (['bookings', 'leads', 'properties', 'reports', 'settings'] as $module) {
+        $this->get(route('admin.pending', ['module' => 'leads']))->assertRedirect(route('leads.dashboard'));
+        foreach (['bookings', 'properties', 'reports', 'settings'] as $module) {
             $this->get(route('admin.pending', ['module' => $module]))->assertOk();
         }
     }

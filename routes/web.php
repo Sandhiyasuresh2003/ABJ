@@ -13,6 +13,31 @@ use App\Http\Controllers\PermissionRequestController;
 use App\Http\Controllers\PettyCashController;
 use App\Http\Controllers\RequestReviewController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadImportController;
+
+Route::middleware(['auth', \App\Http\Middleware\LeadSecurityHeaders::class])->prefix('leads')->name('leads.')->group(function () {
+    Route::get('/dashboard', [LeadController::class, 'dashboard'])->name('dashboard');
+    Route::get('/', [LeadController::class, 'index'])->name('index');
+    Route::get('/create', [LeadController::class, 'create'])->name('create');
+    Route::post('/', [LeadController::class, 'store'])->middleware('throttle:30,1')->name('store');
+    Route::get('/export', [LeadController::class, 'export'])->middleware('throttle:6,1')->name('export');
+    Route::get('/imports', [LeadImportController::class, 'index'])->name('imports.index');
+    Route::get('/imports/create', [LeadImportController::class, 'create'])->name('imports.create');
+    Route::get('/imports/template', [LeadImportController::class, 'template'])->name('imports.template');
+    Route::post('/imports', [LeadImportController::class, 'store'])->middleware('throttle:6,1')->name('imports.store');
+    Route::get('/imports/{import}', [LeadImportController::class, 'show'])->whereNumber('import')->name('imports.show');
+    Route::post('/imports/{import}/preview', [LeadImportController::class, 'preview'])->whereNumber('import')->middleware('throttle:10,1')->name('imports.preview');
+    Route::post('/imports/{import}/confirm', [LeadImportController::class, 'confirm'])->whereNumber('import')->middleware('throttle:6,1')->name('imports.confirm');
+    Route::get('/{lead}', [LeadController::class, 'show'])->whereNumber('lead')->name('show');
+    Route::get('/{lead}/edit', [LeadController::class, 'edit'])->whereNumber('lead')->name('edit');
+    Route::put('/{lead}', [LeadController::class, 'update'])->whereNumber('lead')->name('update');
+    Route::get('/{lead}/assign', [LeadController::class, 'assignment'])->whereNumber('lead')->name('assignment');
+    Route::post('/{lead}/assign', [LeadController::class, 'assign'])->whereNumber('lead')->name('assign');
+    Route::patch('/{lead}/status', [LeadController::class, 'status'])->whereNumber('lead')->name('status');
+    Route::get('/{lead}/followups/create', [LeadController::class, 'followup'])->whereNumber('lead')->name('followup');
+    Route::post('/{lead}/followups', [LeadController::class, 'storeFollowup'])->whereNumber('lead')->middleware('throttle:30,1')->name('followups.store');
+});
 
 Route::view('/agropro', 'agropro.index')->name('agropro.home');
 Route::get('/agropro/{page}.html', fn (string $page) => view('agropro.'.$page))
@@ -31,7 +56,7 @@ Route::get('/', fn () => auth()->check()
     : redirect()->route('login'));
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1')->name('login.submit');
 
     Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'store'])
@@ -56,6 +81,9 @@ Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->
     Route::get('/leave-requests', [EmployeePortalController::class, 'leaves'])->name('leaves');
     Route::get('/permission-requests', [EmployeePortalController::class, 'permissions'])->name('permissions');
     Route::get('/modules/{module}', function (string $module) {
+        if ($module === 'leads') {
+            return redirect()->route('leads.dashboard');
+        }
         $modules = [
             'leads' => 'Leads',
             'bookings' => 'Bookings',
@@ -71,6 +99,9 @@ Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/pending/{module}', function (string $module) {
+        if ($module === 'leads') {
+            return redirect()->route('leads.dashboard');
+        }
         $modules = [
             'leads' => 'Leads',
             'bookings' => 'Bookings',

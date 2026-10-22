@@ -112,6 +112,10 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee): RedirectResponse
     {
+        if (\App\Models\Lead::where('assigned_to', $employee->id)->exists()
+            || \App\Models\LeadAssignment::where('previous_employee_id', $employee->id)->orWhere('new_employee_id', $employee->id)->exists()) {
+            return back()->withErrors(['employee' => 'This employee has lead history and cannot be deleted. Set their employment status to Inactive instead.']);
+        }
         $employee->delete();
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
     }
