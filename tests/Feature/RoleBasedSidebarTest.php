@@ -18,7 +18,7 @@ class RoleBasedSidebarTest extends TestCase
             ->assertOk();
 
         $adminLabels = array_column(config('sidebar.roles.admin'), 'label');
-        $this->assertSame(['Leads', 'Attendance', 'Employees', 'Leave Request', 'Permissions', 'Petty Cash', 'Properties', 'Recovery codes'], $adminLabels);
+        $this->assertSame(['Documents', 'Leads', 'Attendance', 'Employees', 'Leave Request', 'Permissions', 'Petty Cash', 'Properties', 'Recovery codes'], $adminLabels);
 
         foreach ($adminLabels as $label) {
             $response->assertSee($label);
@@ -57,6 +57,7 @@ class RoleBasedSidebarTest extends TestCase
         $owner = User::factory()->create(['role' => 'owner']);
         $ownerLabels = array_column(config('sidebar.roles.owner'), 'label');
         $this->assertSame([
+            'Documents',
             'Attendance',
             'Bookings',
             'Dashboard',

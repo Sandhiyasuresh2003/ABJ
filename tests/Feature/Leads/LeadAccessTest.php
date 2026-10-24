@@ -76,7 +76,7 @@ class LeadAccessTest extends LeadTestCase
         $this->patch(route('leads.status', $lead), ['status' => 'Inactive', 'reason' => 'No access'])->assertForbidden();
     }
 
-    public function test_owner_is_read_only_until_management_permissions_are_explicitly_enabled(): void
+    public function test_owner_can_import_while_remaining_read_only_for_lead_management(): void
     {
         $lead = $this->lead();
         $owner = User::factory()->create(['role' => 'owner']);
@@ -84,12 +84,15 @@ class LeadAccessTest extends LeadTestCase
         foreach (['leads.index', 'leads.dashboard', 'leads.imports.index'] as $route) {
             $this->get(route($route))->assertOk();
         }
+        $this->get(route('leads.dashboard'))->assertSee('Import leads');
+        $this->get(route('leads.imports.create'))->assertOk();
+        $this->get(route('leads.imports.template'))->assertOk();
         $this->get(route('leads.show', $lead))->assertOk()->assertSee('9876543210');
         $this->get(route('leads.export'))->assertOk();
         $this->get(route('leads.edit', $lead))->assertForbidden();
         $this->post(route('leads.assign', $lead), [])->assertForbidden();
         $this->patch(route('leads.status', $lead), [])->assertForbidden();
-        $this->post(route('leads.imports.store'), [])->assertForbidden();
+        $this->post(route('leads.imports.store'), [])->assertSessionHasErrors('file');
         config(['leads.permissions.owner' => ['mobile', 'assign', 'status']]);
         $this->assertTrue(Gate::allows('assign', $lead));
         $this->patch(route('leads.status', $lead), ['status' => 'Inactive', 'reason' => 'Owner permission enabled'])->assertSessionHasNoErrors();

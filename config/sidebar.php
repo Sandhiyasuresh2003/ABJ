@@ -3,6 +3,7 @@
 return [
     'roles' => [
         'admin' => [
+            ['label' => 'Documents', 'icon' => '▤', 'route' => 'documents.index', 'active' => 'documents.*'],
             ['label' => 'Leads', 'icon' => '◉', 'route' => 'leads.dashboard', 'active' => 'leads.*'],
             ['label' => 'Attendance', 'icon' => '◷', 'route' => 'attendance.index', 'active' => 'attendance.*'],
             ['label' => 'Employees', 'icon' => '♙', 'route' => 'employees.index', 'active' => 'employees.*'],
@@ -22,6 +23,7 @@ return [
             ['label' => 'Reports', 'icon' => '▤', 'route' => 'employee.module', 'params' => ['module' => 'reports'], 'active' => 'employee.module'],
         ],
         'owner' => [
+            ['label' => 'Documents', 'icon' => '▤', 'route' => 'documents.index', 'active' => 'documents.*'],
             ['label' => 'Attendance', 'icon' => '◷', 'route' => 'attendance.index', 'active' => 'attendance.*'],
             ['label' => 'Bookings', 'icon' => '▣', 'route' => 'admin.pending', 'params' => ['module' => 'bookings'], 'active' => 'admin.pending'],
             ['label' => 'Dashboard', 'icon' => '▦', 'route' => 'dashboard', 'active' => 'dashboard'],

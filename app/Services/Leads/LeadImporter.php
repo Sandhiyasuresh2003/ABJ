@@ -17,6 +17,8 @@ class LeadImporter
     public function preview(User $user, array $rows, array $mapping, array $defaults): array
     {
         $headers = array_shift($rows) ?? [];
+        $rules = LeadData::rules();
+        $rules['location'] = ['nullable', 'string', 'max:150'];
         $seen = [];
         $result = [];
         foreach ($rows as $index => $values) {
@@ -29,7 +31,7 @@ class LeadImporter
                 $data[$field] = trim((string) ($column !== null && $column !== '' ? ($values[(int) $column] ?? '') : ($defaults[$field] ?? '')));
             }
             $data['mobile_number'] = LeadData::normalizePhone($data['mobile_number']);
-            $validator = Validator::make($data, LeadData::rules());
+            $validator = Validator::make($data, $rules);
             $errors = $validator->errors()->all();
             if (count($values) > count($headers) && array_filter(array_slice($values, count($headers)), fn ($value) => trim($value) !== '')) {
                 $errors[] = 'The row has populated columns without a header.';
@@ -94,6 +96,8 @@ class LeadImporter
             }
             abort_unless(in_array($locked->status, ['preview', 'failed'], true) && $locked->payload && $locked->expires_at->isFuture(), 422, 'This preview has expired or is not ready. Upload the file again.');
             $rows = $locked->payload;
+            $rules = LeadData::rules();
+            $rules['location'] = ['nullable', 'string', 'max:150'];
             $imported = $duplicates = $failed = 0;
             foreach ($rows as $row) {
                 if ($row['state'] === 'invalid') {
@@ -107,7 +111,7 @@ class LeadImporter
                     continue;
                 }
                 $data = $row['data'];
-                $errors = Validator::make($data, LeadData::rules())->errors();
+                $errors = Validator::make($data, $rules)->errors();
                 if ($data['assigned_to'] && (! (new LeadPolicy)->permitted($user, 'assign') || ! LeadData::eligibleEmployees()->whereKey($data['assigned_to'])->lockForUpdate()->exists())) {
                     $failed++;
 

@@ -11,7 +11,7 @@ return [
     'preview_hours' => 24,
     'permissions' => [
         'admin' => ['create', 'import', 'assign', 'status', 'edit', 'followup', 'mobile', 'export', 'history'],
-        'owner' => ['mobile', 'export', 'history'],
+        'owner' => ['mobile', 'import', 'export', 'history'],
         'employee' => ['edit', 'followup'],
     ],
 ];

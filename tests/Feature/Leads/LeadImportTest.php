@@ -5,8 +5,10 @@ namespace Tests\Feature\Leads;
 use App\Models\Lead;
 use App\Models\LeadAudit;
 use App\Models\User;
+use App\Services\Leads\LeadWorkbook;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class LeadImportTest extends LeadTestCase
 {
@@ -31,6 +33,20 @@ class LeadImportTest extends LeadTestCase
         $this->get(route('leads.imports.index'))->assertOk()->assertSee('leads.xlsx');
         $this->confirm($import);
         $this->assertDatabaseCount('leads', 1);
+    }
+
+    public function test_owner_can_import_leads_without_assignment_permission(): void
+    {
+        $owner = User::factory()->create(['role' => 'owner']);
+        $this->actingAs($owner);
+        $this->get(route('leads.imports.create'))->assertOk();
+
+        $import = $this->upload($this->xlsx([['Lead Name', 'Mobile Number', 'Location', 'Requirement'], ['Owner import', '9876543210', 'Chennai', 'Plot']]));
+        $this->preview($import);
+        $result = $this->confirm($import);
+
+        $this->assertSame(1, $result->imported_rows);
+        $this->assertDatabaseHas('leads', ['lead_name' => 'Owner import', 'created_by' => $owner->id, 'assigned_to' => null]);
     }
 
     public function test_csv_duplicate_and_invalid_rows_are_identified_before_any_write(): void
@@ -66,12 +82,24 @@ class LeadImportTest extends LeadTestCase
         $this->assertDatabaseCount('lead_assignments', 1);
     }
 
-    public function test_missing_location_and_requirement_require_explicit_defaults(): void
+    public function test_location_is_optional_but_requirement_needs_an_explicit_default(): void
     {
         $import = $this->upload($this->csv("CUSTOMER NAME,MOBILE NO\nCustomer,9876543210\n"));
-        $this->post(route('leads.imports.preview', $import), ['sheet' => 0, 'mapping' => ['lead_name' => 0, 'mobile_number' => 1]])->assertSessionHasErrors('defaults.location');
+        $this->post(route('leads.imports.preview', $import), ['sheet' => 0, 'mapping' => ['lead_name' => 0, 'mobile_number' => 1]])->assertSessionHasErrors('defaults.requirement');
         $this->assertSame('uploaded', $import->refresh()->status);
         $this->assertDatabaseCount('leads', 0);
+    }
+
+    public function test_location_can_be_omitted_during_import(): void
+    {
+        $import = $this->upload($this->xlsx([['Lead Name', 'Mobile Number', 'Requirement'], ['No location', '9876543210', 'Plot']]));
+        $import = $this->preview($import, ['mapping' => ['location' => null, 'requirement' => 2]]);
+
+        $this->assertSame('valid', $import->payload[0]['state']);
+        $result = $this->confirm($import);
+
+        $this->assertSame(1, $result->imported_rows);
+        $this->assertDatabaseHas('leads', ['lead_name' => 'No location', 'location' => '']);
     }
 
     public function test_invalid_file_extensions_mime_types_and_oversized_uploads_are_rejected(): void
@@ -170,5 +198,18 @@ class LeadImportTest extends LeadTestCase
         $response = $this->get(route('leads.imports.template'))->assertOk()->assertDownload('abj-leads-template.xlsx');
         $content = $response->streamedContent();
         $this->assertStringStartsWith('PK', $content);
+
+        $path = tempnam(sys_get_temp_dir(), 'leads-template-');
+        try {
+            file_put_contents($path, $content);
+            $book = IOFactory::load($path);
+            try {
+                $this->assertSame(LeadWorkbook::HEADERS, $book->getActiveSheet()->rangeToArray('A1:E1', null, true, false)[0]);
+            } finally {
+                $book->disconnectWorksheets();
+            }
+        } finally {
+            unlink($path);
+        }
     }
 }

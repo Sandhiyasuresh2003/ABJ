@@ -139,7 +139,7 @@ class LeadImportController extends Controller
             $columns = array_keys(array_filter($rows[0] ?? [], fn ($header) => trim($header) !== ''));
             foreach (['lead_name', 'mobile_number', 'location', 'requirement', 'assigned_to'] as $field) {
                 $request->validate(['mapping.'.$field => [$field === 'lead_name' || $field === 'mobile_number' ? 'required' : 'nullable', 'integer', Rule::in($columns)]]);
-                if (in_array($field, ['location', 'requirement'], true) && $request->input('mapping.'.$field) === null) {
+                if ($field === 'requirement' && $request->input('mapping.'.$field) === null) {
                     $request->validate(['defaults.'.$field => LeadData::rules()[$field]]);
                 }
             }

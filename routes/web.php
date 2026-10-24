@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\AccountPasswordSetupController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PropertyDocumentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeePortalController;
 use App\Http\Controllers\LeaveRequestController;
@@ -97,6 +98,10 @@ Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/documents', [PropertyDocumentController::class, 'index'])->name('documents.index');
+    Route::post('/documents', [PropertyDocumentController::class, 'store'])->middleware('throttle:20,1')->name('documents.store');
+    Route::get('/documents/{document}/download', [PropertyDocumentController::class, 'download'])->whereNumber('document')->name('documents.download');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/pending/{module}', function (string $module) {
         if ($module === 'leads') {
