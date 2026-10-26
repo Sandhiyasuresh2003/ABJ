@@ -3,7 +3,7 @@
 @section('breadcrumb','Dashboard')
 @section('heading','Good day, '.auth()->user()->name)
 @section('content')
-<div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p class="text-xs font-bold uppercase tracking-[.18em] text-gold-600">Company overview</p><h2 class="mt-2 text-2xl font-bold text-navy-950 sm:text-3xl">Your business at a glance</h2><p class="mt-1 text-sm text-slate-500">{{ $today->format('l, d F Y') }} · Live database summary</p></div><a href="{{ route('employees.create') }}" class="btn btn-primary">＋ Add employee</a></div>
+<div class="flex justify-end"><a href="{{ route('employees.create') }}" class="btn btn-primary">＋ Register employee</a></div>
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
 @foreach ([['Active employees',$employees,'♙','blue'],['Checked in today',$present,'✓','green'],['Late arrivals today',$late,'◷','amber'],['Pending approvals',$pendingLeaves+$pendingPermissions,'▣','purple']] as $stat)
 <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"><div class="flex items-start justify-between"><p class="text-sm text-slate-500">{{ $stat[0] }}</p><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-lg text-gold-600">{{ $stat[2] }}</span></div><p class="mt-4 text-3xl font-bold text-navy-950">{{ $stat[1] }}</p><p class="mt-1 text-xs text-slate-400">Calculated from saved records</p></div>

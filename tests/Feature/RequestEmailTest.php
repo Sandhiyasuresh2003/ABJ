@@ -94,6 +94,61 @@ class RequestEmailTest extends TestCase
             && $mail->request->status === 'Rejected');
     }
 
+    public function test_admin_can_edit_leave_and_permission_request_details_without_changing_status(): void
+    {
+        Mail::fake();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+        $employee = $this->createEmployee();
+
+        $leaveRequest = LeaveRequest::create([
+            'employee_id' => $employee->id,
+            'leave_type' => 'Casual Leave',
+            'start_date' => '2026-11-02',
+            'end_date' => '2026-11-03',
+            'reason' => 'Original leave reason',
+            'status' => 'Approved',
+        ]);
+        $this->get(route('leaves.edit', $leaveRequest))
+            ->assertOk()
+            ->assertSee('value="2026-11-02"', false)
+            ->assertSee('Original leave reason');
+        $this->put(route('leaves.update', $leaveRequest), [
+            'employee_id' => $employee->id,
+            'leave_type' => 'Sick Leave',
+            'start_date' => '2026-11-05',
+            'end_date' => '2026-11-06',
+            'reason' => 'Updated leave reason',
+        ])->assertRedirect(route('leaves.index'));
+
+        $this->assertSame('Approved', $leaveRequest->fresh()->status);
+        $this->assertSame('Updated leave reason', $leaveRequest->fresh()->reason);
+
+        $permissionRequest = PermissionRequest::create([
+            'employee_id' => $employee->id,
+            'permission_date' => '2026-11-04',
+            'start_time' => '10:00',
+            'end_time' => '11:00',
+            'reason' => 'Original permission reason',
+            'status' => 'Rejected',
+        ]);
+        $this->get(route('permissions.edit', $permissionRequest))
+            ->assertOk()
+            ->assertSee('Original permission reason')
+            ->assertSee('value="10:00"', false);
+        $this->put(route('permissions.update', $permissionRequest), [
+            'employee_id' => $employee->id,
+            'permission_date' => '2026-11-07',
+            'start_time' => '13:00',
+            'end_time' => '14:00',
+            'reason' => 'Updated permission reason',
+        ])->assertRedirect(route('permissions.index'));
+
+        $this->assertSame('Rejected', $permissionRequest->fresh()->status);
+        $this->assertSame('Updated permission reason', $permissionRequest->fresh()->reason);
+        Mail::assertNothingSent();
+    }
+
     public function test_request_cannot_be_created_without_an_employee_email(): void
     {
         Mail::fake();

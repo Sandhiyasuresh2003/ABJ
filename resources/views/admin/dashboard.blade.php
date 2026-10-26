@@ -8,8 +8,8 @@
     <script>
         tailwind.config = {
             theme: { extend: {
-                colors: { navy: { 950:'#0B1730', 900:'#102344', 800:'#17345E', 700:'#244779' }, gold: { 400:'#E8C56A', 500:'#D6AD45', 600:'#B98B28' } },
-                boxShadow: { soft: '0 8px 28px rgba(15, 35, 68, .06)' }
+                colors: { navy: { 950:'#0B2F23', 900:'#104735', 800:'#155C42', 700:'#1A704F' }, gold: { 400:'#DCFCE7', 500:'#15803D', 600:'#166534' }, amber: { 50:'#F0FDF4', 100:'#DCFCE7', 200:'#BBF7D0', 700:'#15803D', 800:'#166534', 900:'#14532D' } },
+                boxShadow: { soft: '0 8px 28px rgba(11, 47, 35, .07)' }
             }}
         }
     </script>
@@ -17,18 +17,15 @@
         body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         .nav-link { transition: .18s ease; }
         .nav-link:hover { background: rgba(255,255,255,.08); }
-        .nav-link.active { color: #F0D27D; background: rgba(214,173,69,.13); border-left: 3px solid #D6AD45; }
+        .nav-link.active { color: #DCFCE7; background: rgba(21,128,61,.2); border-left: 3px solid #15803D; }
         .scrollbar-hide::-webkit-scrollbar { display:none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 <div class="min-h-screen lg:flex">
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col bg-navy-950 text-white transition-transform duration-200 lg:static lg:translate-x-0">
-        <div class="flex h-20 items-center gap-3 border-b border-white/10 px-6">
-            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 text-navy-950 shadow-lg">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5M9 21v-7h6v7"/></svg>
-            </div>
-            <div><div class="text-lg font-bold tracking-wide">ABJ <span class="text-gold-400">BUILDERS</span></div><div class="mt-0.5 text-[10px] font-semibold tracking-[.22em] text-slate-400">ADMIN PORTAL</div></div>
+        <div class="flex h-20 items-center border-b border-white/10 px-6">
+            <img src="{{ asset('images/abj-builders-logo.png') }}" alt="ABJ Builders" class="h-16 w-full object-contain">
             <button id="closeSidebar" class="ml-auto rounded-lg p-2 text-slate-300 hover:bg-white/10 lg:hidden" aria-label="Close menu">✕</button>
         </div>
 
@@ -92,7 +89,7 @@
             <section id="dashboard" class="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
                 @foreach ($stats as $stat)
                     @php
-                        $toneClasses = ['blue' => 'bg-blue-50 text-blue-700', 'green' => 'bg-emerald-50 text-emerald-700', 'amber' => 'bg-amber-50 text-amber-700', 'purple' => 'bg-violet-50 text-violet-700'];
+                        $toneClasses = ['blue' => 'bg-green-50 text-green-800', 'green' => 'bg-emerald-50 text-emerald-700', 'amber' => 'bg-green-50 text-green-800', 'purple' => 'bg-green-50 text-green-800'];
                         $icons = ['users' => '♙', 'check' => '✓', 'clock' => '◷', 'calendar' => '▣'];
                     @endphp
                     <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-md">
@@ -106,7 +103,7 @@
                 <article id="attendance" class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-soft 2xl:col-span-2 sm:p-6">
                     <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h3 class="font-bold text-navy-950">Attendance overview</h3><p class="mt-1 text-xs text-slate-500">Today's attendance distribution · sample figures</p></div><button class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50" onclick="showToast('Connect attendance records to enable date filtering.')">Today⌄</button></div>
                     <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-5 md:items-center">
-                        <div class="flex justify-center md:col-span-2"><div class="relative flex h-44 w-44 items-center justify-center rounded-full" style="background: conic-gradient(#16876B 0% 81.25%, #D6AD45 81.25% 89.58%, #E2E8F0 89.58% 100%)"><div class="flex h-32 w-32 flex-col items-center justify-center rounded-full bg-white"><span class="text-3xl font-bold text-navy-950">81%</span><span class="mt-1 text-xs text-slate-400">Present today</span></div></div></div>
+                        <div class="flex justify-center md:col-span-2"><div class="relative flex h-44 w-44 items-center justify-center rounded-full" style="background: conic-gradient(#16876B 0% 81.25%, #15803D 81.25% 89.58%, #E2E8F0 89.58% 100%)"><div class="flex h-32 w-32 flex-col items-center justify-center rounded-full bg-white"><span class="text-3xl font-bold text-navy-950">81%</span><span class="mt-1 text-xs text-slate-400">Present today</span></div></div></div>
                         <div class="space-y-4 md:col-span-3">
                             <div><div class="mb-2 flex items-center justify-between text-sm"><span class="flex items-center gap-2 text-slate-600"><span class="h-2.5 w-2.5 rounded-full bg-emerald-600"></span>Present</span><strong class="text-navy-950">39 <span class="font-normal text-slate-400">(81.25%)</span></strong></div><div class="h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-600" style="width:81.25%"></div></div></div>
                             <div><div class="mb-2 flex items-center justify-between text-sm"><span class="flex items-center gap-2 text-slate-600"><span class="h-2.5 w-2.5 rounded-full bg-gold-500"></span>Late arrivals</span><strong class="text-navy-950">4 <span class="font-normal text-slate-400">(8.33%)</span></strong></div><div class="h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-gold-500" style="width:8.33%"></div></div></div>
@@ -142,7 +139,7 @@
                     <div class="flex items-center justify-between"><div><h3 class="font-bold text-navy-950">Pending approvals</h3><p class="mt-1 text-xs text-slate-500">Leave & permission requests</p></div><span class="rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">5 pending</span></div>
                     <div class="mt-4 space-y-1">
                         @foreach ($requests as $request)
-                            <div class="flex items-start gap-3 rounded-xl p-3 transition hover:bg-slate-50"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {{ $request['tone'] === 'purple' ? 'bg-violet-50 text-violet-700' : 'bg-blue-50 text-blue-700' }} text-xs font-bold">{{ $request['initials'] }}</div><div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><p class="text-sm font-semibold text-navy-950">{{ $request['name'] }}</p><span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">{{ $request['type'] }}</span></div><p class="mt-1 text-xs text-slate-500">{{ $request['date'] }}</p><p class="mt-1 text-[11px] text-slate-400">{{ $request['submitted'] }}</p><div class="mt-3 flex gap-2"><button class="rounded-lg bg-navy-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy-800" onclick="showToast('Approval action is a demo. Connect request storage and authorization first.')">Review request</button><button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100" onclick="showToast('Request details can be connected to your leave module.')">Details</button></div></div></div>
+                            <div class="flex items-start gap-3 rounded-xl p-3 transition hover:bg-slate-50"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-50 text-green-800 text-xs font-bold">{{ $request['initials'] }}</div><div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><p class="text-sm font-semibold text-navy-950">{{ $request['name'] }}</p><span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">{{ $request['type'] }}</span></div><p class="mt-1 text-xs text-slate-500">{{ $request['date'] }}</p><p class="mt-1 text-[11px] text-slate-400">{{ $request['submitted'] }}</p><div class="mt-3 flex gap-2"><button class="rounded-lg bg-navy-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy-800" onclick="showToast('Approval action is a demo. Connect request storage and authorization first.')">Review request</button><button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100" onclick="showToast('Request details can be connected to your leave module.')">Details</button></div></div></div>
                         @endforeach
                     </div>
                 </article>
