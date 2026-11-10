@@ -14,11 +14,21 @@ use Illuminate\Validation\ValidationException;
 
 class LeadImporter
 {
+    private function importRules(): array
+    {
+        $rules = LeadData::rules();
+        $rules['lead_name'] = ['nullable', 'string', 'max:150'];
+        $rules['location'] = ['nullable', 'string', 'max:150'];
+        $rules['requirement'] = ['nullable', 'string', 'max:1000'];
+        $rules['project_category'] = ['required', 'string', 'in:Plots,Agri'];
+
+        return $rules;
+    }
+
     public function preview(User $user, array $rows, array $mapping, array $defaults): array
     {
         $headers = array_shift($rows) ?? [];
-        $rules = LeadData::rules();
-        $rules['location'] = ['nullable', 'string', 'max:150'];
+        $rules = $this->importRules();
         $seen = [];
         $result = [];
         foreach ($rows as $index => $values) {
@@ -26,9 +36,17 @@ class LeadImporter
                 continue;
             }
             $data = [];
-            foreach (['lead_name', 'mobile_number', 'location', 'requirement', 'assigned_to'] as $field) {
+            foreach (['lead_name', 'mobile_number', 'location', 'requirement', 'assigned_to', 'project_category'] as $field) {
                 $column = $mapping[$field] ?? null;
                 $data[$field] = trim((string) ($column !== null && $column !== '' ? ($values[(int) $column] ?? '') : ($defaults[$field] ?? '')));
+                if ($field === 'project_category') {
+                    $data[$field] = match (strtolower($data[$field])) {
+                        'plots' => 'Plots',
+                        'agri' => 'Agri',
+                        '' => 'Agri',
+                        default => $data[$field],
+                    };
+                }
             }
             $data['mobile_number'] = LeadData::normalizePhone($data['mobile_number']);
             $validator = Validator::make($data, $rules);
@@ -96,8 +114,7 @@ class LeadImporter
             }
             abort_unless(in_array($locked->status, ['preview', 'failed'], true) && $locked->payload && $locked->expires_at->isFuture(), 422, 'This preview has expired or is not ready. Upload the file again.');
             $rows = $locked->payload;
-            $rules = LeadData::rules();
-            $rules['location'] = ['nullable', 'string', 'max:150'];
+            $rules = $this->importRules();
             $imported = $duplicates = $failed = 0;
             foreach ($rows as $row) {
                 if ($row['state'] === 'invalid') {

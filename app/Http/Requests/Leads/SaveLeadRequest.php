@@ -25,7 +25,7 @@ class SaveLeadRequest extends FormRequest
     {
         if ($this->route('lead') && $this->user()->role === 'employee') {
             return [
-                'location' => LeadData::rules()['location'], 'requirement' => LeadData::rules()['requirement'],
+                'location' => LeadData::rules()['location'], 'requirement' => LeadData::rules()['requirement'], 'project_category' => LeadData::rules()['project_category'],
                 'lead_name' => 'prohibited', 'mobile_number' => 'prohibited', 'assigned_to' => 'prohibited',
                 'normalized_mobile' => 'prohibited', 'status' => 'prohibited', 'created_by' => 'prohibited', 'source_data' => 'prohibited',
             ];

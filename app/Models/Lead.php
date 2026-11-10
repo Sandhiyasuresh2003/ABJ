@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Gate;
 
 class Lead extends Model
 {
-    protected $fillable = ['lead_name', 'mobile_number', 'normalized_mobile', 'location', 'requirement', 'assigned_to', 'status', 'created_by', 'source_data'];
+    protected $fillable = ['lead_name', 'mobile_number', 'normalized_mobile', 'location', 'requirement', 'project_category', 'assigned_to', 'status', 'created_by', 'source_data'];
 
     protected $hidden = ['mobile_number', 'normalized_mobile', 'source_data'];
 

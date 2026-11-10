@@ -11,3 +11,4 @@
     <a href="{{ $rejectUrl }}" style="display:inline-block;padding:12px 20px;background:#be123c;color:#ffffff;text-decoration:none;border-radius:6px;">Reject</a>
 </p>
 <p>Open an action and confirm your decision on the review page. These links expire in 7 days. Keep this email private because its links authorize the decision.</p>
+<p>For employees enrolled in salary management, sign in as Admin or Owner before opening these links. You can also review requests from the Permissions or Leave Request menu.</p>

@@ -6,7 +6,8 @@
 <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft">
     <div class="border-b border-slate-100 p-5">
         <h2 class="font-bold text-navy-950">{{ $title }}</h2>
-        <p class="mt-1 text-sm text-slate-500">Only records linked to your employee account are shown here. This page is view-only.</p>
+        <p class="mt-1 text-sm text-slate-500">Only records linked to your employee account are shown here.</p>
+        @if($employee && $kind !== 'attendance')<a class="btn btn-primary mt-3" href="{{ route('employee.requests.create',['kind'=>$kind]) }}">Submit {{ $kind }} request</a>@endif
     </div>
     @if(!$employee)
         <p class="p-6 text-sm text-amber-800">No employee profile is linked to your login email. Contact an administrator.</p>

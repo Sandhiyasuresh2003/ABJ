@@ -1,0 +1,15 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@page { margin: 32px; } body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #153d2f; } h1 { font-size: 17px; } h2 { font-size: 12px; margin-top: 22px; page-break-after: avoid; } .attendance { page-break-before: always; } table { width: 100%; border-collapse: collapse; margin: 12px 0; } th,td { padding: 5px; border: 1px solid #d3ded8; text-align: left; } th { background: #edf5ef; } tr { page-break-inside: avoid; } thead { display: table-header-group; } .draft { color: #935700; }
+</style></head><body>
+@php($s=$statement->snapshot)
+<h1>ABJ Builders · Monthly Salary Statement</h1><p><strong>{{ $s['employee']['name'] }}</strong> · {{ $s['employee']['employee_code'] }} · {{ $s['month'] }}</p>
+<p class="draft">{{ $statement->status }} · Revision {{ $statement->revision }} · Payment: {{ $statement->payment_status }} {{ $statement->payment_date?->toDateString() }} · {{ $statement->payment_reference }}</p>
+<p>{{ $s['employee']['department'] }} / {{ $s['employee']['designation'] }} · Joining date {{ substr($s['employee']['joining_date'],0,10) }}</p>
+<table><thead><tr><th>Salary breakdown</th><th>Value</th></tr></thead><tbody>@foreach(app(\App\Services\Salary\SalaryExport::class)->summary($s) as $label=>$value)<tr><td>{{ $label }}</td><td>{{ str_contains($label,'(INR)') ? number_format((float)$value,str_contains($label,'Per-minute')?6:2) : $value }}</td></tr>@endforeach</tbody></table>
+<h2>Individual deductions (INR)</h2><table>@foreach($s['deductions'] as $label=>$value)<tr><td>{{ ucwords(str_replace('_',' ',$label)) }}</td><td>{{ number_format($value/100,2) }}</td></tr>@endforeach</table><p>Adjustment reason: {{ $statement->adjustment_reason ?? 'None' }}</p>
+<h2 class="attendance">Daily attendance, late arrivals and Week Off</h2><table><thead><tr><th>Date</th><th>Status</th><th>In / Out</th><th>Sunday</th><th>Late / Approved permission</th><th>Deduction / days</th></tr></thead><tbody>@foreach($s['days'] as $d)<tr><td>{{ $d['date'] }}</td><td>{{ $d['status'] }}</td><td>{{ $d['check_in'] ?? '-' }} / {{ $d['check_out'] ?? '-' }}</td><td>{{ $d['sunday']?'Yes':'No' }}</td><td>{{ $d['late']?'Yes':'No' }} / {{ $d['approved_permission']?'Yes':'No' }}</td><td>{{ $d['deduction'] ?? '-' }} / {{ $d['deduction_units'] }}</td></tr>@endforeach</tbody></table>
+<h2>Emergency permission history</h2>@forelse($s['permissions'] as $p)<p>{{ substr($p['permission_date'],0,10) }} · {{ $p['start_time'] }}–{{ $p['end_time'] }} · {{ $p['reason'] }} · {{ $p['status'] }} · Reviewer {{ $p['reviewed_by'] ?? '-' }}</p>@empty<p>None</p>@endforelse
+<h2>Leave history</h2>@forelse($s['leaves'] as $l)<p>{{ $l['leave_type'] }} · {{ substr($l['start_date'],0,10) }}–{{ substr($l['end_date'],0,10) }} · {{ $l['reason'] }} · {{ $l['status'] }}</p>@empty<p>None</p>@endforelse
+@foreach($s['conflicts'] as $conflict)<p class="draft">{{ $conflict }}</p>@endforeach
+<p>Calculated {{ $s['calculated_at'] }} · Calculation version {{ $s['calculation_version'] }}. Amounts in INR.</p>
+</body></html>

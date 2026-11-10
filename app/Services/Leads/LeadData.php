@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LeadData
 {
+    public const PROJECT_CATEGORIES = ['Plots', 'Agri'];
+
     public static function normalizePhone(string $phone): string
     {
         $phone = preg_replace('/[\s().-]+/u', '', trim($phone));
@@ -30,7 +32,36 @@ class LeadData
             'mobile_number' => ['required', 'string', 'max:25', 'regex:'.config('leads.phone_pattern')],
             'location' => ['required', 'string', 'max:150'],
             'requirement' => ['required', 'string', 'max:1000'],
+            'project_category' => ['required', 'string', 'in:Plots,Agri'],
         ];
+    }
+
+    public static function datedRequirementEntries(string $requirement): array
+    {
+        $datePattern = '/(?<![\pL\pN])(?:\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?|\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?(?:\s+\d{2,4})?|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+\d{1,2}(?:,?\s+\d{2,4})?)(?![\pL\pN])/iu';
+        preg_match_all($datePattern, $requirement, $matches, PREG_OFFSET_CAPTURE);
+
+        if (! $matches[0]) {
+            $content = trim($requirement);
+
+            return $content === '' ? [] : [['date' => null, 'content' => $content]];
+        }
+
+        $entries = [];
+        $firstDateOffset = $matches[0][0][1];
+        $beforeDates = trim(substr($requirement, 0, $firstDateOffset), " \t\n\r\0\x0B/|;,-");
+        if ($beforeDates !== '') {
+            $entries[] = ['date' => null, 'content' => $beforeDates];
+        }
+
+        foreach ($matches[0] as $index => [$date, $offset]) {
+            $contentStart = $offset + strlen($date);
+            $nextDateOffset = $matches[0][$index + 1][1] ?? strlen($requirement);
+            $content = trim(substr($requirement, $contentStart, $nextDateOffset - $contentStart), " \t\n\r\0\x0B/|;,-");
+            $entries[] = ['date' => $date, 'content' => $content];
+        }
+
+        return $entries;
     }
 
     public static function eligibleEmployees(): Builder

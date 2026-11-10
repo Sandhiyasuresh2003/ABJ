@@ -48,10 +48,10 @@ class LeadImportController extends Controller
                 $sheet->fromArray(LeadWorkbook::HEADERS, null, 'A1');
                 $sheet->getStyle('A1:E1')->getFont()->setBold(true);
                 $sheet->getStyle('A1:E1')->getFill()->setFillType('solid')->getStartColor()->setARGB('FFDCFCE7');
-                foreach (['A' => 25, 'B' => 24, 'C' => 25, 'D' => 45, 'E' => 28] as $column => $width) {
+                foreach (['A' => 24, 'B' => 32, 'C' => 45, 'D' => 28, 'E' => 22] as $column => $width) {
                     $sheet->getColumnDimension($column)->setWidth($width);
                 }
-                $sheet->getStyle('B2:B5001')->getNumberFormat()->setFormatCode('@');
+                $sheet->getStyle('A2:A5001')->getNumberFormat()->setFormatCode('@');
                 $sheet->freezePane('A2');
                 (new Xlsx($book))->setPreCalculateFormulas(false)->save('php://output');
             } finally {
@@ -130,20 +130,26 @@ class LeadImportController extends Controller
     public function preview(Request $request, LeadImport $import, LeadWorkbook $workbook, LeadImporter $importer)
     {
         $this->authorizeImport($request, $import);
-        $request->validate(['sheet' => ['required', 'integer', 'between:0,19'], 'mapping' => ['required', 'array:lead_name,mobile_number,location,requirement,assigned_to'], 'defaults' => ['nullable', 'array:location,requirement'], 'defaults.location' => ['nullable', 'string', 'max:150'], 'defaults.requirement' => ['nullable', 'string', 'max:1000']]);
+        $request->validate([
+            'sheet' => ['required', 'integer', 'between:0,19'],
+            'mapping' => ['required', 'array:lead_name,mobile_number,location,requirement,assigned_to,project_category'],
+        ]);
+
         DB::transaction(function () use ($request, $import, $workbook, $importer) {
             $locked = LeadImport::whereKey($import->id)->lockForUpdate()->firstOrFail();
             abort_unless($locked->status === 'uploaded' && $locked->path && Storage::disk('local')->exists($locked->path), 422, 'Upload a new file to prepare another preview.');
             $path = Storage::disk('local')->path($locked->path);
             $rows = $workbook->rows($path, pathinfo($path, PATHINFO_EXTENSION), (int) $request->input('sheet'));
             $columns = array_keys(array_filter($rows[0] ?? [], fn ($header) => trim($header) !== ''));
-            foreach (['lead_name', 'mobile_number', 'location', 'requirement', 'assigned_to'] as $field) {
-                $request->validate(['mapping.'.$field => [$field === 'lead_name' || $field === 'mobile_number' ? 'required' : 'nullable', 'integer', Rule::in($columns)]]);
-                if ($field === 'requirement' && $request->input('mapping.'.$field) === null) {
-                    $request->validate(['defaults.'.$field => LeadData::rules()[$field]]);
+            $mapping = $request->input('mapping', []);
+            foreach (['lead_name', 'mobile_number', 'location', 'requirement', 'assigned_to', 'project_category'] as $field) {
+                if ($field === 'mobile_number') {
+                    $request->validate(['mapping.'.$field => ['required', 'integer', Rule::in($columns)]]);
+                } else {
+                    $request->validate(['mapping.'.$field => ['nullable', 'integer', Rule::in($columns)]]);
                 }
             }
-            $payload = $importer->preview($request->user(), $rows, $request->input('mapping'), $request->input('defaults', []));
+            $payload = $importer->preview($request->user(), $rows, $request->input('mapping'), []);
             $locked->update(['status' => 'preview', 'total_rows' => count($payload), 'duplicate_rows' => count(array_filter($payload, fn ($row) => $row['state'] === 'duplicate')), 'failed_rows' => count(array_filter($payload, fn ($row) => $row['state'] === 'invalid')), 'payload' => $payload]);
             LeadActions::audit($request->user(), 'import_previewed', null, ['import_id' => $locked->id]);
         });

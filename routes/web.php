@@ -30,6 +30,7 @@ Route::middleware(['auth', \App\Http\Middleware\LeadSecurityHeaders::class])->pr
     Route::get('/imports/{import}', [LeadImportController::class, 'show'])->whereNumber('import')->name('imports.show');
     Route::post('/imports/{import}/preview', [LeadImportController::class, 'preview'])->whereNumber('import')->middleware('throttle:10,1')->name('imports.preview');
     Route::post('/imports/{import}/confirm', [LeadImportController::class, 'confirm'])->whereNumber('import')->middleware('throttle:6,1')->name('imports.confirm');
+    Route::get('/{lead}/followups/history', [LeadController::class, 'followupHistory'])->whereNumber('lead')->name('followups.history');
     Route::get('/{lead}', [LeadController::class, 'show'])->whereNumber('lead')->name('show');
     Route::get('/{lead}/edit', [LeadController::class, 'edit'])->whereNumber('lead')->name('edit');
     Route::put('/{lead}', [LeadController::class, 'update'])->whereNumber('lead')->name('update');
@@ -77,6 +78,8 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->group(function () {
+    Route::get('/requests/{kind}/create', [\App\Http\Controllers\EmployeeSalaryRequestController::class, 'create'])->whereIn('kind', ['leave', 'permission'])->name('requests.create');
+    Route::post('/requests/{kind}', [\App\Http\Controllers\EmployeeSalaryRequestController::class, 'store'])->whereIn('kind', ['leave', 'permission'])->middleware('throttle:10,1')->name('requests.store');
     Route::get('/workspace', [EmployeePortalController::class, 'workspace'])->name('workspace');
     Route::get('/attendance', [EmployeePortalController::class, 'attendance'])->name('attendance');
     Route::get('/leave-requests', [EmployeePortalController::class, 'leaves'])->name('leaves');
@@ -98,6 +101,15 @@ Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::prefix('employee-salary')->name('salary.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\SalaryController::class, 'index'])->name('index');
+        Route::get('/employees/{employee}/configuration', [\App\Http\Controllers\SalaryController::class, 'configure'])->name('configure');
+        Route::post('/employees/{employee}/configuration', [\App\Http\Controllers\SalaryController::class, 'saveConfiguration'])->name('configuration.save');
+        Route::post('/employees/{employee}/generate', [\App\Http\Controllers\SalaryController::class, 'generate'])->name('generate');
+        Route::get('/statements/{statement}', [\App\Http\Controllers\SalaryController::class, 'show'])->name('show');
+        Route::post('/statements/{statement}/{action}', [\App\Http\Controllers\SalaryController::class, 'change'])->whereIn('action', ['finalize', 'revise', 'adjust', 'payment'])->name('change');
+        Route::get('/statements/{statement}/export/{format}', [\App\Http\Controllers\SalaryController::class, 'export'])->whereIn('format', ['xlsx', 'pdf'])->middleware('throttle:10,1')->name('export');
+    });
     Route::get('/documents', [PropertyDocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [PropertyDocumentController::class, 'store'])->middleware('throttle:20,1')->name('documents.store');
     Route::get('/documents/{document}/download', [PropertyDocumentController::class, 'download'])->whereNumber('document')->name('documents.download');

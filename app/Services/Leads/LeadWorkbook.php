@@ -12,7 +12,7 @@ use ZipArchive;
 
 class LeadWorkbook
 {
-    public const HEADERS = ['Lead Name', 'Mobile Number', 'Location', 'Requirement', 'Assigned Employee'];
+    public const HEADERS = ['Mobile Number', 'Lead Name', 'Requirement', 'Assigned Employee', 'Project Category'];
 
     private function invalid(string $message): never
     {
@@ -158,6 +158,7 @@ class LeadWorkbook
             'mobile_number' => ['mobile number', 'mobile no', 'mobile', 'phone', 'phone number'],
             'location' => ['location'], 'requirement' => ['requirement', 'requirements'],
             'assigned_to' => ['assigned employee', 'telecaller', 'executive'],
+            'project_category' => ['project category', 'project type', 'category'],
         ];
         $suggestions = [];
         foreach ($aliases as $field => $names) {

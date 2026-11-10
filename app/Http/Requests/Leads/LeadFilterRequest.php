@@ -4,7 +4,7 @@ namespace App\Http\Requests\Leads;
 
 use App\Models\Employee;
 use App\Models\Lead;
-use App\Models\LeadFollowup;
+use App\Services\Leads\LeadData;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,20 +18,14 @@ class LeadFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'search' => ['nullable', 'string', 'max:150'],
-            'from' => ['nullable', 'date_format:Y-m-d'],
-            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
-            'status' => ['nullable', Rule::in(['Active', 'Inactive'])],
+            'mobile' => ['nullable', 'string', 'max:25', 'regex:/^(?=.*[0-9])[0-9+().\s-]+$/'],
             'assigned_to' => ['nullable', 'integer', Rule::exists('employees', 'id'), function ($attribute, $value, $fail) {
                 if ($this->user()->role === 'employee' && ! Employee::whereKey($value)->where('email', $this->user()->email)->where('employment_status', 'Active')->exists()) {
                     $fail('You may only filter your own leads.');
                 }
             }],
-            'location' => ['nullable', 'string', 'max:150'],
-            'outcome' => ['nullable', Rule::in(LeadFollowup::OUTCOMES)],
-            'next_followup' => ['nullable', 'date_format:Y-m-d'],
-            'sort' => ['nullable', Rule::in(['lead_name', 'location', 'status', 'created_at'])],
-            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
+            'project_category' => ['nullable', Rule::in(LeadData::PROJECT_CATEGORIES)],
+            'text' => ['nullable', 'string', 'max:1000'],
             'page' => ['nullable', 'integer', 'min:1', 'max:1000000'],
         ];
     }

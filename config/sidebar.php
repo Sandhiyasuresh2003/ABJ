@@ -3,6 +3,7 @@
 return [
     'roles' => [
         'admin' => [
+            ['label' => 'Employee Salary Management', 'icon' => '₹', 'route' => 'salary.index', 'active' => 'salary.*'],
             ['label' => 'Documents', 'icon' => '▤', 'route' => 'documents.index', 'active' => 'documents.*'],
             ['label' => 'Leads', 'icon' => '◉', 'route' => 'leads.dashboard', 'active' => 'leads.*'],
             ['label' => 'Attendance', 'icon' => '◷', 'route' => 'attendance.index', 'active' => 'attendance.*'],
@@ -23,6 +24,7 @@ return [
             ['label' => 'Reports', 'icon' => '▤', 'route' => 'employee.module', 'params' => ['module' => 'reports'], 'active' => 'employee.module'],
         ],
         'owner' => [
+            ['label' => 'Employee Salary Management', 'icon' => '₹', 'route' => 'salary.index', 'active' => 'salary.*'],
             ['label' => 'Documents', 'icon' => '▤', 'route' => 'documents.index', 'active' => 'documents.*'],
             ['label' => 'Attendance', 'icon' => '◷', 'route' => 'attendance.index', 'active' => 'attendance.*'],
             ['label' => 'Bookings', 'icon' => '▣', 'route' => 'admin.pending', 'params' => ['module' => 'bookings'], 'active' => 'admin.pending'],

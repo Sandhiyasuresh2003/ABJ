@@ -27,10 +27,8 @@ class LeadController extends Controller
 
         return view('leads.dashboard', [
             'total' => (clone $base)->count(),
-            'active' => (clone $base)->where('status', 'Active')->count(),
-            'inactive' => (clone $base)->where('status', 'Inactive')->count(),
-            'unassigned' => (clone $base)->whereNull('assigned_to')->count(),
-            'callbacks' => (clone $base)->whereHas('lastFollowup', fn ($q) => $q->whereNotNull('next_followup_at')->where('next_followup_at', '<=', now()->endOfDay()))->count(),
+            'wanted' => (clone $base)->where('status', 'Active')->count(),
+            'unwanted' => (clone $base)->where('status', 'Inactive')->count(),
             'recent' => (clone $base)->with(['employee', 'lastFollowup'])->latest()->limit(5)->get(),
         ]);
     }
@@ -41,7 +39,7 @@ class LeadController extends Controller
         LeadActions::audit($request->user(), 'list_viewed');
 
         return view('leads.index', [
-            'leads' => $query->build($request->user(), $filters)->paginate(20)->withQueryString(),
+            'leads' => $query->build($request->user(), $filters)->paginate(10)->withQueryString(),
             'filters' => $filters,
             'employees' => Employee::query()->when($request->user()->role === 'employee', fn ($q) => $q->where('email', $request->user()->email)->where('employment_status', 'Active'))->orderBy('name')->get(),
         ]);
@@ -78,6 +76,18 @@ class LeadController extends Controller
         ]);
     }
 
+    public function followupHistory(Request $request, Lead $lead)
+    {
+        Gate::authorize('view', $lead);
+        LeadActions::audit($request->user(), 'followups_viewed', $lead);
+
+        return view('leads.followups.index', [
+            'lead' => $lead->load('employee'),
+            'requirementEntries' => LeadData::datedRequirementEntries($lead->requirement ?? ''),
+            'followups' => $lead->followups()->with('creator')->latest('followup_at')->latest('id')->paginate(20)->withQueryString(),
+        ]);
+    }
+
     public function edit(Lead $lead)
     {
         Gate::authorize('update', $lead);
@@ -91,7 +101,7 @@ class LeadController extends Controller
             DB::transaction(function () use ($request, $lead) {
                 $locked = Lead::whereKey($lead->id)->lockForUpdate()->firstOrFail();
                 Gate::authorize('update', $locked);
-                $data = $request->safe()->only($request->user()->role === 'employee' ? ['location', 'requirement'] : array_keys(LeadData::rules()));
+                $data = $request->safe()->only($request->user()->role === 'employee' ? ['location', 'requirement', 'project_category'] : array_keys(LeadData::rules()));
                 if (isset($data['mobile_number'])) {
                     $data['normalized_mobile'] = $data['mobile_number'];
                 }
@@ -169,9 +179,9 @@ class LeadController extends Controller
 
         return response()->streamDownload(function () use ($request, $query, $filters) {
             $output = fopen('php://output', 'wb');
-            fputcsv($output, ['Lead Name', 'Mobile Number', 'Location', 'Requirement', 'Assigned Employee', 'Status'], ',', '"', '');
+            fputcsv($output, ['Lead Name', 'Mobile Number', 'Project Category', 'Location', 'Requirement', 'Assigned Employee', 'Status'], ',', '"', '');
             foreach ($query->build($request->user(), $filters)->lazy(200) as $lead) {
-                fputcsv($output, array_map([LeadData::class, 'safeCsv'], [$lead->lead_name, $lead->displayMobile($request->user()), $lead->location, $lead->requirement, $lead->employee?->name ?? '', $lead->status]), ',', '"', '');
+                fputcsv($output, array_map([LeadData::class, 'safeCsv'], [$lead->lead_name, $lead->displayMobile($request->user()), $lead->project_category, $lead->location, $lead->requirement, $lead->employee?->name ?? '', $lead->status]), ',', '"', '');
             }
             fclose($output);
         }, 'abj-leads.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
