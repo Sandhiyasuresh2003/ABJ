@@ -18,6 +18,11 @@ class RequestReviewController extends Controller
     {
         $model = $kind === 'leave' ? LeaveRequest::class : PermissionRequest::class;
         $item = $model::with('employee')->findOrFail($id);
+        // Existing signed email approvals are retained for employees outside payroll.
+        // Payroll-managed requests require an authenticated Admin/Owner decision.
+        if (\App\Models\SalaryConfiguration::where('employee_id', $item->employee_id)->exists()) {
+            abort_unless($httpRequest->user() && in_array($httpRequest->user()->role, ['admin', 'owner'], true), 403, 'Sign in as Admin or Owner to review payroll-managed requests.');
+        }
         $error = null;
 
         if ($httpRequest->isMethod('post')) {

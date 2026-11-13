@@ -20,4 +20,6 @@ class Employee extends Model
     public function attendanceRecords(): HasMany { return $this->hasMany(Attendance::class); }
     public function leaveRequests(): HasMany { return $this->hasMany(LeaveRequest::class); }
     public function permissionRequests(): HasMany { return $this->hasMany(PermissionRequest::class); }
+    public function salaryConfigurations(): HasMany { return $this->hasMany(SalaryConfiguration::class); }
+    public function salaryStatements(): HasMany { return $this->hasMany(SalaryStatement::class); }
 }

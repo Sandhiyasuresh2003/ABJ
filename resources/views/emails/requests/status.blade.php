@@ -1,3 +1,4 @@
+<p><img src="{{ url('/images/abj-builders-logo.png') }}" alt="ABJ Builders" width="220" style="display:block;max-width:100%;height:auto;"></p>
 <h1>{{ ucfirst($requestType) }} request {{ strtolower($request->status) }}</h1>
 
 <p>Hello {{ $request->employee->name }},</p>

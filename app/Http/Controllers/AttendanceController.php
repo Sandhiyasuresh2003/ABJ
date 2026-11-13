@@ -58,7 +58,7 @@ class AttendanceController extends Controller
             ],
             'check_in' => ['nullable', 'date_format:H:i'],
             'check_out' => ['nullable', 'date_format:H:i', 'after:check_in'],
-            'status' => ['required', Rule::in(['Present', 'Late', 'Absent', 'Half Day', 'Leave'])],
+            'status' => ['required', Rule::in(['Present', 'Late', 'Absent', 'Half Day', 'Leave', 'Permission', 'Casual Leave', 'Week Off', 'Holiday'])],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
     }

@@ -65,3 +65,9 @@ Leave and permission request notifications are sent to the selected employee's `
 On creation, a separate approval email is sent to `REQUEST_MD_EMAIL` (default: `kavimdu3784@gmail.com`). Employee emails contain no approval actions. The MD email contains signed Approve and Reject links valid for seven days; opening a link shows a confirmation page, and submitting it updates the table and emails the employee. A completed request cannot be changed by replaying these links. If the final notification fails, the decision is rolled back so the MD can retry. An MD login is not required; keep these approval links private. If the MD has a user account with the configured email, it is recorded in `reviewed_by`; otherwise this remains null and `reviewed_at` records the decision time.
 
 Set `APP_URL` to the application's externally reachable URL so the MD can open email links from another device. `http://localhost` only works on the machine running the app. After editing `.env`, run `php artisan config:clear`. Gmail SMTP authentication must succeed before either notification can be delivered.
+
+## Password recovery
+
+Password recovery does not send email. A signed-in administrator can open **Recovery codes** in the sidebar, select the account, and generate a one-time recovery code. Share the code with the account owner through a trusted channel; it is displayed only once, stored hashed, expires after 30 days, and is invalidated when used or replaced. The account owner enters their email and recovery code on the Forgot password page, then sets and confirms a new password. The verification session expires after 10 minutes.
+
+Run `php artisan migrate` after deploying to create the recovery-code table.

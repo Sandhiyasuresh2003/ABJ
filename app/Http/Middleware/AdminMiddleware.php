@@ -10,8 +10,8 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || $request->user()->role !== 'admin') {
-            abort(403, 'Administrator access is required.');
+        if (! $request->user() || ! in_array($request->user()->role, ['admin', 'owner'], true)) {
+            abort(403, 'Administrator or owner access is required.');
         }
 
         return $next($request);

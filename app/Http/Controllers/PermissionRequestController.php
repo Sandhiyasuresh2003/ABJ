@@ -24,7 +24,22 @@ class PermissionRequestController extends Controller
 
     public function create(): View
     {
-        return view('requests.form', ['employees' => Employee::where('employment_status', 'Active')->orderBy('name')->get(), 'kind' => 'permission']);
+        return view('requests.form', [
+            'employees' => Employee::where('employment_status', 'Active')->orderBy('name')->get(),
+            'kind' => 'permission',
+            'editing' => false,
+            'requestRecord' => new PermissionRequest(),
+        ]);
+    }
+
+    public function edit(PermissionRequest $permissionRequest): View
+    {
+        return view('requests.form', [
+            'employees' => Employee::orderBy('name')->get(),
+            'kind' => 'permission',
+            'editing' => true,
+            'requestRecord' => $permissionRequest,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -48,6 +63,26 @@ class PermissionRequestController extends Controller
         Mail::to(config('requests.md_email'))->send(new RequestApprovalMail($permissionRequest, 'permission'));
 
         return redirect()->route('permissions.index')->with('success', 'Permission request created and marked pending.');
+    }
+
+    public function update(Request $request, PermissionRequest $permissionRequest): RedirectResponse
+    {
+        $data = $request->validate([
+            'employee_id' => ['required', 'exists:employees,id'],
+            'permission_date' => ['required', 'date'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $employee = Employee::findOrFail($data['employee_id']);
+        if (blank($employee->email)) {
+            throw ValidationException::withMessages(['employee_id' => 'The selected employee does not have an email address.']);
+        }
+
+        $permissionRequest->update($data);
+
+        return redirect()->route('permissions.index')->with('success', 'Permission request updated.');
     }
 
     public function status(Request $request, PermissionRequest $permissionRequest): RedirectResponse
