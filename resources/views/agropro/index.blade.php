@@ -53,45 +53,23 @@
          <div class="slider_main">
             <!-- carousel code -->
              <div id="banner1" class="carousel slide carousel-fade" data-ride="carousel" data-interval="6000">
+                              @if($bannerImages->count() > 1)
                               <ol class="carousel-indicators">
-                                 <li data-target="#banner1" data-slide-to="0" class="active"></li>
-                                 <li data-target="#banner1" data-slide-to="1"></li>
-                                 <li data-target="#banner1" data-slide-to="2"></li>
+                                 @foreach($bannerImages as $banner)
+                                 <li data-target="#banner1" data-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}"></li>
+                                 @endforeach
                               </ol>
+                              @endif
                               <div class="carousel-inner" role="listbox">
-                                 <div class="carousel-item active">
-                                    <picture>
-                                       <source srcset="{{ asset('templates/agropro/images/banner.jpg') }}" >
-                                     
-                                       <img srcset="{{ asset('templates/agropro/images/banner.jpg') }}" alt="responsive image" class="d-block img-fluid">
-                                    </picture>
-                                    <div class="carousel-caption relative">
-                                       
+                                 @forelse($bannerImages as $banner)
+                                    <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                       <img src="{{ asset('storage/'.$banner->image_path) }}" alt="ABJ Builders homepage banner {{ $loop->iteration }}" class="d-block img-fluid">
                                     </div>
-                                 </div>
-                                 <!-- /.carousel-item -->
-                                 <div class="carousel-item">
-                                    <picture>
-                                     
-                                       <img srcset="{{ asset('templates/agropro/images/banner.jpg') }}" alt="responsive image" class="d-block img-fluid">
-                                    </picture>
-                                    <div class="carousel-caption relative">
-                                       
+                                 @empty
+                                    <div class="carousel-item active">
+                                       <img src="{{ asset('templates/agropro/images/banner.jpg') }}" alt="ABJ Builders" class="d-block img-fluid">
                                     </div>
-                                 </div>
-                                 <!-- /.carousel-item -->
-                                 <div class="carousel-item">
-                                    <picture>
-                                       <source srcset="{{ asset('templates/agropro/images/banner.jpg') }}" >
-                                       <source srcset="{{ asset('templates/agropro/images/banner.jpg') }}" >
-                                       <source srcset="{{ asset('templates/agropro/images/banner.jpg') }}" >
-                                       <img srcset="{{ asset('templates/agropro/images/banner.jpg') }}" alt="responsive image" class="d-block img-fluid">
-                                    </picture>
-                                    <div class="carousel-caption relative">
-                                       
-                                    </div>
-                                 </div>
-                                 <!-- /.carousel-item -->
+                                 @endforelse
                               </div>
                               <!-- /.carousel-inner -->
                               <a class="carousel-control-prev" href="#banner1" role="button" data-slide="prev">
@@ -122,8 +100,8 @@
                <div class="col-lg-6 col-md-12">
                   <div class="titlepage text_align_left">
                      <span>{{ $aboutUsSettings?->label ?? 'About Us' }}</span>
-                     <h2>AGRICULTURE MARKET</h2>
-                     <p>fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that itfact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that itfact th</p>
+                     <h2>{{ $aboutUsSettings?->heading ?: 'AGRICULTURE MARKET' }}</h2>
+                     <p>{!! nl2br(e($aboutUsSettings?->description ?: 'fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that itfact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that itfact th')) !!}</p>
                   </div>
                </div>
                <div class="col-lg-6 col-md-12">
@@ -157,43 +135,21 @@
                   </div>
                </div>
             </div>
-            <div class="row">
-               <div class="col-md-4">
+            <div class="owl-carousel service-carousel">
+               @foreach($services as $service)
+               <div class="service-slide">
                   <div class="services_box_main">
                      <div  class="services_box text_align_left">
-                          <figure><img src="{{ asset('templates/agropro/images/service1.jpg') }}" alt="#"/></figure>
+                          <figure><img src="{{ $service->image_url }}" alt="{{ $service->title }}"/></figure>
                         <div class="veget">
-                           <h3>FRESH<br>VEGETABLES</h3>
-                           <p>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip</p>
+                           <h3>{{ $service->title }}</h3>
+                           <p>{{ $service->description }}</p>
                         </div>
                      </div>
                      <a class="read_more" href="{{ url('agropro/services.html') }}">Read More</a>
                   </div>
                </div>
-               <div class="col-md-4">
-               <div class="services_box_main">
-                     <div  class="services_box text_align_left">
-                          <figure><img src="{{ asset('templates/agropro/images/service2.jpg') }}" alt="#"/></figure>
-                        <div class="veget">
-                           <h3>AGRICULTURE<br>PRODUCTS</h3>
-                           <p>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip</p>
-                        </div>
-                     </div>
-                     <a class="read_more" href="{{ url('agropro/services.html') }}">Read More</a>
-                  </div>
-               </div>
-               <div class="col-md-4">
-               <div class="services_box_main">
-                     <div  class="services_box text_align_left">
-                          <figure><img src="{{ asset('templates/agropro/images/service3.jpg') }}" alt="#"/></figure>
-                        <div class="veget">
-                           <h3>ORGANIC<br>PRODUCTS</h3>
-                           <p>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip</p>
-                        </div>
-                     </div>
-                     <a class="read_more" href="{{ url('agropro/services.html') }}">Read More</a>
-                  </div>
-               </div>
+               @endforeach
             </div>
          </div>
       </div>
@@ -214,115 +170,41 @@
          </div>
          <!-- start slider section -->
          <div id="myCarousel" class="carousel slide clients_banner" data-ride="carousel">
+            @if($testimonialSlides->count() > 1)
             <ol class="carousel-indicators">
-               <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-               <li data-target="#myCarousel" data-slide-to="1"></li>
-               <li data-target="#myCarousel" data-slide-to="2"></li>
+               @foreach($testimonialSlides as $slide)
+               <li data-target="#myCarousel" data-slide-to="{{ $loop->index }}" class="{{ $loop->first ? 'active' : '' }}"></li>
+               @endforeach
             </ol>
+            @endif
             <div class="carousel-inner">
-               <div class="carousel-item active">
+               @foreach($testimonialSlides as $slide)
+               <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
                   <div class="container">
                      <div class="carousel-caption relative">
                         <div class="row d_flex">
+                           @foreach($slide as $testimonial)
                            <div class="col-md-6">
                               <div class="custom">
                                  <div class="d_flex">
-                                    <i><img src="{{ asset('templates/agropro/images/customer1.jpg') }}" alt="#"/></i>
+                                    <i><img src="{{ $testimonial->image_url }}" alt="{{ $testimonial->name }}"/></i>
                                     <div class="clint">
-                                      <h4>Dan Balan</h4>
-                                      <span>Client</span>
+                                      <h4>{{ $testimonial->name }}</h4>
+                                      <span>{{ $testimonial->role }}</span>
                                     </div>
                                  </div>
-                                  <p>readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their </p>
-                                  <img src="{{ asset('templates/agropro/images/test.png') }}" alt="#"/>
+                                  <p>{{ $testimonial->feedback }}</p>
+                                  <img src="{{ asset('templates/agropro/images/test.png') }}" alt=""/>
                               </div>
                            </div>
-                           <div class="col-md-6">
-                              <div class="custom">
-                                 <div class="d_flex">
-                                    <i><img src="{{ asset('templates/agropro/images/customer2.jpg') }}" alt="#"/></i>
-                                    <div class="clint">
-                                      <h4>Mor Balan</h4>
-                                      <span>Client</span>
-                                    </div>
-                                 </div>
-                                  <p>readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their </p>
-                                  <img src="{{ asset('templates/agropro/images/test.png') }}" alt="#"/>
-                              </div>
-                           </div>
+                           @endforeach
                         </div>
                      </div>
                   </div>
                </div>
-               <div class="carousel-item">
-                  <div class="container">
-                     <div class="carousel-caption relative">
-                       <div class="row d_flex">
-                           <div class="col-md-6">
-                              <div class="custom">
-                                 <div class="d_flex">
-                                    <i><img src="{{ asset('templates/agropro/images/customer1.jpg') }}" alt="#"/></i>
-                                    <div class="clint">
-                                      <h4>Dan Balan</h4>
-                                      <span>Client</span>
-                                    </div>
-                                 </div>
-                                  <p>readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their </p>
-                                  <img src="{{ asset('templates/agropro/images/test.png') }}" alt="#"/>
-                              </div>
-                           </div>
-                           <div class="col-md-6">
-                              <div class="custom">
-                                 <div class="d_flex">
-                                    <i><img src="{{ asset('templates/agropro/images/customer2.jpg') }}" alt="#"/></i>
-                                    <div class="clint">
-                                      <h4>Mor Balan</h4>
-                                      <span>Client</span>
-                                    </div>
-                                 </div>
-                                  <p>readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their </p>
-                                  <img src="{{ asset('templates/agropro/images/test.png') }}" alt="#"/>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="carousel-item">
-                  <div class="container">
-                     <div class="carousel-caption relative">
-                       <div class="row d_flex">
-                           <div class="col-md-6">
-                              <div class="custom">
-                                 <div class="d_flex">
-                                    <i><img src="{{ asset('templates/agropro/images/customer1.jpg') }}" alt="#"/></i>
-                                    <div class="clint">
-                                      <h4>Dan Balan</h4>
-                                      <span>Client</span>
-                                    </div>
-                                 </div>
-                                  <p>readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their </p>
-                                  <img src="{{ asset('templates/agropro/images/test.png') }}" alt="#"/>
-                              </div>
-                           </div>
-                           <div class="col-md-6">
-                              <div class="custom">
-                                 <div class="d_flex">
-                                    <i><img src="{{ asset('templates/agropro/images/customer2.jpg') }}" alt="#"/></i>
-                                    <div class="clint">
-                                      <h4>Mor Balan</h4>
-                                      <span>Client</span>
-                                    </div>
-                                 </div>
-                                  <p>readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their </p>
-                                  <img src="{{ asset('templates/agropro/images/test.png') }}" alt="#"/>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
+               @endforeach
             </div>
+            @if($testimonialSlides->count() > 1)
             <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
             <i class="fa fa-angle-left" aria-hidden="true"></i>
             <span class="sr-only">Previous</span>
@@ -331,48 +213,10 @@
             <i class="fa fa-angle-right" aria-hidden="true"></i>
             <span class="sr-only">Next</span>
             </a>
+            @endif
          </div>
       </div>
       <!-- end customers -->
-      <!-- choose -->
-      <div class="choose">
-         <div class="container">
-            <div class="row">
-               <div class="col-md-12">
-                  <div class="titlepage text_align_center">
-                     <h2>Whay choose us</h2>
-                  </div>
-               </div>
-            </div>
-            <div class="row">
-               <div class="col-md-3">
-                  <div class="point text_align_center">
-                     <h3>300+</h3>
-                     <span>Regula <br>Customers</span>
-                  </div>
-               </div>
-               <div class="col-md-3">
-                  <div class="point text_align_center">
-                     <h3>30+</h3>
-                     <span>Professional <br>Engineering</span>
-                  </div>
-               </div>
-               <div class="col-md-3">
-                  <div class="point text_align_center">
-                     <h3>300+</h3>
-                     <span>Points of Sale  <br>Goods</span>
-                  </div>
-               </div>
-               <div class="col-md-3">
-                  <div class="point text_align_center">
-                     <h3>30+</h3>
-                     <span>Awards <br>Won</span>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-      <!-- choose -->
       <!-- news -->
       <div class="news">
          <div class="container">
@@ -384,40 +228,20 @@
                   </div>
                </div>
             </div>
-            <div class="row">
-               <div class=" col-md-4">
-                  <div class="latest">
-                     <figure><img src="{{ asset('templates/agropro/images/news1.jpg') }}" alt="#"/></figure>
-                     <span>15<br>  March</span>
+            <div class="owl-carousel latest-news-carousel">
+               @foreach($latestNews as $newsItem)
+               <div class="news-slide">
+                  <div class="latest {{ $loop->iteration === 2 ? 'box_desho' : '' }}">
+                     <figure><img src="{{ $newsItem->image_url }}" alt="{{ $newsItem->title }}"/></figure>
+                     <span>{{ $newsItem->published_at->format('d') }}<br>{{ $newsItem->published_at->format('F') }}</span>
                      <div class="nostrud">
-                        <h3>Alteration in somer</h3>
-                        <p>has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making iteditors </p>
-                        <a class="read_more" href="{{ url('agropro/news.html') }}">Read More</a>
+                        <h3>{{ $newsItem->title }}</h3>
+                        <p>{{ $newsItem->description }}</p>
+                        <a class="read_more" href="{{ route('latest-news.show', $newsItem) }}">Read More</a>
                      </div>
                   </div>
                </div>
-               <div class=" col-md-4">
-                  <div class="latest box_desho">
-                     <figure><img src="{{ asset('templates/agropro/images/news2.jpg') }}" alt="#"/></figure>
-                     <span>15<br> March</span>
-                     <div class="nostrud">
-                        <h3>Alteration in somer</h3>
-                        <p>has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making iteditors </p>
-                        <a class="read_more" href="{{ url('agropro/news.html') }}">Read More</a>
-                     </div>
-                  </div>
-               </div>
-              <div class=" col-md-4">
-                  <div class="latest">
-                     <figure><img src="{{ asset('templates/agropro/images/news3.jpg') }}" alt="#"/></figure>
-                     <span>15<br> March</span>
-                     <div class="nostrud">
-                        <h3>Alteration in somer</h3>
-                        <p>has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making iteditors </p>
-                        <a class="read_more" href="{{ url('agropro/news.html') }}">Read More</a>
-                     </div>
-                  </div>
-               </div>
+               @endforeach
             </div>
          </div>
       </div>

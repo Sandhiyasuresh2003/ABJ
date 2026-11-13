@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class AboutUsPageSetting extends Model
 {
-    protected $fillable = ['label', 'landing_image_one', 'landing_image_two'];
+    protected $fillable = ['label', 'heading', 'description','landing_image_one', 'landing_image_two'];
 }

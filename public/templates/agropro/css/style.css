@@ -627,6 +627,36 @@ ul.email li i {
     display: block;
 }
 
+.service-carousel .owl-nav button.owl-prev,
+.service-carousel .owl-nav button.owl-next,
+.latest-news-carousel .owl-nav button.owl-prev,
+.latest-news-carousel .owl-nav button.owl-next {
+    position: absolute;
+    top: 45%;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #104735 !important;
+    color: #fff !important;
+    font-size: 24px !important;
+    line-height: 1;
+}
+
+.service-carousel .owl-nav button.owl-prev,
+.latest-news-carousel .owl-nav button.owl-prev {
+    left: -20px;
+}
+
+.service-carousel .owl-nav button.owl-next,
+.latest-news-carousel .owl-nav button.owl-next {
+    right: -20px;
+}
+
+.service-carousel .owl-nav button:hover,
+.latest-news-carousel .owl-nav button:hover {
+    background: #155c42 !important;
+}
+
 /** end services section **/
 
 

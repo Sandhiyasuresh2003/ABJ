@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title','Leads')
-@section('heading','Leads')
+@section('title', auth()->user()->role === 'employee' ? 'My assigned leads' : 'All leads')
+@section('heading', auth()->user()->role === 'employee' ? 'My assigned leads' : 'All leads')
 @section('breadcrumb','Leads')
 @section('content')
 @include('leads.nav')

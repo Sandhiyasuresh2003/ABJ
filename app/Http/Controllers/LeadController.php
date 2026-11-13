@@ -7,15 +7,19 @@ use App\Http\Requests\Leads\LeadFilterRequest;
 use App\Http\Requests\Leads\SaveLeadRequest;
 use App\Models\Employee;
 use App\Models\Lead;
+use App\Models\SiteVisit;
 use App\Services\Leads\LeadActions;
 use App\Services\Leads\LeadData;
 use App\Services\Leads\LeadQuery;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Carbon;
 
 class LeadController extends Controller
 {
@@ -25,12 +29,52 @@ class LeadController extends Controller
         $base = Lead::visibleTo($request->user());
         LeadActions::audit($request->user(), 'dashboard_viewed');
 
+        $currentMonth = Carbon::now(config('app.timezone'))->startOfMonth();
+        $months = collect(range(5, 0))->map(fn (int $monthsAgo) => $currentMonth->copy()->subMonths($monthsAgo));
+        $siteVisitCounts = $this->monthlyCounts(
+            SiteVisit::query()->whereHas('lead', fn (Builder $query) => $query->visibleTo($request->user())),
+            'visit_date',
+            $months
+        );
+        $bookingCounts = $this->monthlyCounts((clone $base), 'booked_at', $months);
+        $monthlyActivity = $months->values()->map(fn (Carbon $month, int $index) => [
+            'label' => $month->format('M Y'),
+            'site_visits' => (int) ($siteVisitCounts->{'month_'.$index} ?? 0),
+            'booked_clients' => (int) ($bookingCounts->{'month_'.$index} ?? 0),
+        ]);
+        $siteVisitsTotal = (int) $monthlyActivity->sum('site_visits');
+        $bookedClientsTotal = (int) $monthlyActivity->sum('booked_clients');
+        $chartMax = max(1, (int) $monthlyActivity->max(fn (array $month) => max($month['site_visits'], $month['booked_clients'])));
+
         return view('leads.dashboard', [
             'total' => (clone $base)->count(),
             'wanted' => (clone $base)->where('status', 'Active')->count(),
             'unwanted' => (clone $base)->where('status', 'Inactive')->count(),
             'recent' => (clone $base)->with(['employee', 'lastFollowup'])->latest()->limit(5)->get(),
+            'monthlyActivity' => $monthlyActivity,
+            'siteVisitsTotal' => $siteVisitsTotal,
+            'bookedClientsTotal' => $bookedClientsTotal,
+            'chartMax' => $chartMax,
         ]);
+    }
+
+    private function monthlyCounts(Builder $query, string $column, Collection $months): object
+    {
+        $selects = [];
+        $bindings = [];
+
+        foreach ($months as $index => $month) {
+            $nextMonth = $month->copy()->addMonth();
+            $selects[] = "SUM(CASE WHEN {$column} >= ? AND {$column} < ? THEN 1 ELSE 0 END) AS month_{$index}";
+            $bindings[] = $month->toDateString();
+            $bindings[] = $nextMonth->toDateString();
+        }
+
+        return $query
+            ->where($column, '>=', $months->first()->toDateString())
+            ->where($column, '<', $months->last()->copy()->addMonth()->toDateString())
+            ->selectRaw(implode(', ', $selects), $bindings)
+            ->first();
     }
 
     public function index(LeadFilterRequest $request, LeadQuery $query)
@@ -69,8 +113,9 @@ class LeadController extends Controller
         LeadActions::audit($request->user(), 'viewed', $lead);
 
         return view('leads.show', [
-            'lead' => $lead->load(['employee', 'creator', 'lastFollowup']),
+            'lead' => $lead->load(['employee', 'creator', 'lastFollowup', 'bookedBy']),
             'followups' => $lead->followups()->with('creator')->orderBy('followup_at')->orderBy('id')->paginate(15, ['*'], 'followup_page')->withQueryString(),
+            'siteVisits' => $lead->siteVisits()->with('creator')->orderByDesc('visit_date')->orderByDesc('id')->paginate(10, ['*'], 'site_visit_page')->withQueryString(),
             'assignments' => $lead->assignments()->with(['previousEmployee', 'newEmployee', 'actor'])->latest('id')->paginate(10, ['*'], 'assignment_page')->withQueryString(),
             'audits' => $lead->audits()->with('actor')->latest('id')->paginate(10, ['*'], 'audit_page')->withQueryString(),
         ]);

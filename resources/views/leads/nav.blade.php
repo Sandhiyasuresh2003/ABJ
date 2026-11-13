@@ -11,7 +11,7 @@
 
 <nav class="flex flex-wrap gap-2" aria-label="Lead management">
     <a class="btn {{ $activeTab === 'dashboard' ? 'btn-primary' : 'btn-light' }}" href="{{ route('leads.dashboard') }}">Leads dashboard</a>
-    <a class="btn {{ $activeTab === 'all' ? 'btn-primary' : 'btn-light' }}" href="{{ route('leads.index') }}">All leads</a>
+    <a class="btn {{ $activeTab === 'all' ? 'btn-primary' : 'btn-light' }}" href="{{ route('leads.index') }}">{{ auth()->user()->role === 'employee' ? 'My assigned leads' : 'All leads' }}</a>
     @can('create', App\Models\Lead::class)<a class="btn {{ $activeTab === 'new' ? 'btn-primary' : 'btn-light' }}" href="{{ route('leads.create') }}">New lead</a>@endcan
     @can('import', App\Models\Lead::class)<a class="btn {{ $activeTab === 'imports' ? 'btn-primary' : 'btn-light' }}" href="{{ route('leads.imports.create') }}">Import leads</a>@endcan
 </nav>

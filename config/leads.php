@@ -10,8 +10,8 @@ return [
     'max_uncompressed_bytes' => 32 * 1024 * 1024,
     'preview_hours' => 24,
     'permissions' => [
-        'admin' => ['create', 'import', 'assign', 'status', 'edit', 'followup', 'mobile', 'export', 'history'],
-        'owner' => ['mobile', 'import', 'export', 'history'],
-        'employee' => ['edit', 'followup'],
+        'admin' => ['create', 'import', 'assign', 'status', 'edit', 'followup', 'site_visit', 'book', 'mobile', 'export', 'history'],
+        'owner' => ['site_visit', 'book', 'mobile', 'import', 'export', 'history'],
+        'employee' => ['edit', 'followup', 'site_visit', 'book'],
     ],
 ];

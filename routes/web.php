@@ -15,6 +15,7 @@ use App\Http\Controllers\PettyCashController;
 use App\Http\Controllers\RequestReviewController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadActivityController;
 use App\Http\Controllers\LeadImportController;
 use App\Http\Controllers\PublicHomeController;
 
@@ -38,6 +39,8 @@ Route::middleware(['auth', \App\Http\Middleware\LeadSecurityHeaders::class])->pr
     Route::get('/{lead}/assign', [LeadController::class, 'assignment'])->whereNumber('lead')->name('assignment');
     Route::post('/{lead}/assign', [LeadController::class, 'assign'])->whereNumber('lead')->name('assign');
     Route::patch('/{lead}/status', [LeadController::class, 'status'])->whereNumber('lead')->name('status');
+    Route::post('/{lead}/site-visits', [LeadActivityController::class, 'storeSiteVisit'])->whereNumber('lead')->name('site-visits.store');
+    Route::post('/{lead}/book', [LeadActivityController::class, 'book'])->whereNumber('lead')->name('book');
     Route::get('/{lead}/followups/create', [LeadController::class, 'followup'])->whereNumber('lead')->name('followup');
     Route::post('/{lead}/followups', [LeadController::class, 'storeFollowup'])->whereNumber('lead')->middleware('throttle:30,1')->name('followups.store');
 });
@@ -55,6 +58,9 @@ Route::match(['get', 'post'], '/request-review/{kind}/{id}/{decision}', RequestR
     ->name('requests.review');
 
 Route::get('/', [PublicHomeController::class, 'index'])->name('home');
+Route::get('/latest-news/{latestNews}', [\App\Http\Controllers\PublicLatestNewsController::class, 'show'])
+    ->whereNumber('latestNews')
+    ->name('latest-news.show');
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1')->name('login.submit');
@@ -102,6 +108,22 @@ Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/about-us', [\App\Http\Controllers\Admin\AboutUsPageController::class, 'edit'])->name('admin.about-us.edit');
     Route::put('/admin/about-us', [\App\Http\Controllers\Admin\AboutUsPageController::class, 'update'])->name('admin.about-us.update');
+    Route::get('/admin/banners', [\App\Http\Controllers\Admin\BannerImageController::class, 'index'])->name('admin.banners.index');
+    Route::post('/admin/banners', [\App\Http\Controllers\Admin\BannerImageController::class, 'store'])->name('admin.banners.store');
+    Route::delete('/admin/banners/{banner}', [\App\Http\Controllers\Admin\BannerImageController::class, 'destroy'])->name('admin.banners.destroy');
+    Route::get('/admin/services', [\App\Http\Controllers\Admin\ServiceController::class, 'index'])->name('admin.services.index');
+    Route::post('/admin/services', [\App\Http\Controllers\Admin\ServiceController::class, 'store'])->name('admin.services.store');
+    Route::put('/admin/services/{service}', [\App\Http\Controllers\Admin\ServiceController::class, 'update'])->name('admin.services.update');
+    Route::delete('/admin/services/{service}', [\App\Http\Controllers\Admin\ServiceController::class, 'destroy'])->name('admin.services.destroy');
+    Route::get('/admin/client-feedback', [\App\Http\Controllers\Admin\ClientTestimonialController::class, 'index'])->name('admin.client-feedback.index');
+    Route::post('/admin/client-feedback', [\App\Http\Controllers\Admin\ClientTestimonialController::class, 'store'])->name('admin.client-feedback.store');
+    Route::put('/admin/client-feedback/{testimonial}', [\App\Http\Controllers\Admin\ClientTestimonialController::class, 'update'])->name('admin.client-feedback.update');
+    Route::delete('/admin/client-feedback/{testimonial}', [\App\Http\Controllers\Admin\ClientTestimonialController::class, 'destroy'])->name('admin.client-feedback.destroy');
+    Route::get('/admin/latest-news', [\App\Http\Controllers\Admin\LatestNewsController::class, 'index'])->name('admin.latest-news.index');
+    Route::post('/admin/latest-news', [\App\Http\Controllers\Admin\LatestNewsController::class, 'store'])->name('admin.latest-news.store');
+    Route::put('/admin/latest-news/{latestNews}', [\App\Http\Controllers\Admin\LatestNewsController::class, 'update'])->name('admin.latest-news.update');
+    Route::delete('/admin/latest-news/{latestNews}/gallery/{galleryImage}', [\App\Http\Controllers\Admin\LatestNewsController::class, 'destroyGalleryImage'])->name('admin.latest-news.gallery.destroy');
+    Route::delete('/admin/latest-news/{latestNews}', [\App\Http\Controllers\Admin\LatestNewsController::class, 'destroy'])->name('admin.latest-news.destroy');
 
     Route::prefix('employee-salary')->name('salary.')->group(function () {
         Route::get('/', [\App\Http\Controllers\SalaryController::class, 'index'])->name('index');

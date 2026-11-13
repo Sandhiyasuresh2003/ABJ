@@ -62,6 +62,16 @@ class LeadPolicy
         return $this->view($user, $lead) && $this->permitted($user, 'followup');
     }
 
+    public function siteVisit(User $user, Lead $lead): bool
+    {
+        return $this->view($user, $lead) && $this->permitted($user, 'site_visit');
+    }
+
+    public function book(User $user, Lead $lead): bool
+    {
+        return $this->view($user, $lead) && $this->permitted($user, 'book');
+    }
+
     public function viewMobile(User $user, Lead $lead): bool
     {
         return $this->permitted($user, 'mobile') && $this->view($user, $lead);

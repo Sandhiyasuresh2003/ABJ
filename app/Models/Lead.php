@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Gate;
 
 class Lead extends Model
 {
-    protected $fillable = ['lead_name', 'mobile_number', 'normalized_mobile', 'location', 'requirement', 'project_category', 'assigned_to', 'status', 'created_by', 'source_data'];
+    protected $fillable = ['lead_name', 'mobile_number', 'normalized_mobile', 'location', 'requirement', 'project_category', 'assigned_to', 'status', 'created_by', 'source_data', 'booked_at', 'booked_by'];
 
     protected $hidden = ['mobile_number', 'normalized_mobile', 'source_data'];
 
     protected function casts(): array
     {
-        return ['source_data' => 'encrypted:array'];
+        return ['source_data' => 'encrypted:array', 'booked_at' => 'date'];
     }
 
     public function employee(): BelongsTo
@@ -48,6 +48,16 @@ class Lead extends Model
     public function lastFollowup(): HasOne
     {
         return $this->hasOne(LeadFollowup::class)->ofMany(['followup_at' => 'max', 'id' => 'max']);
+    }
+
+    public function siteVisits(): HasMany
+    {
+        return $this->hasMany(SiteVisit::class);
+    }
+
+    public function bookedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'booked_by');
     }
 
     public function scopeVisibleTo(Builder $query, User $user): Builder

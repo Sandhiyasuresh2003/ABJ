@@ -23,6 +23,8 @@ class AboutUsPageController extends Controller
     {
         $validated = $request->validate([
             'label' => ['required', 'string', 'max:100'],
+            'heading' => ['required', 'string', 'max:150'],
+            'description' => ['required', 'string', 'max:2000'],
             'landing_image_one' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:5120'],
             'landing_image_two' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:5120'],
         ]);
@@ -30,7 +32,11 @@ class AboutUsPageController extends Controller
         $settings = AboutUsPageSetting::query()->findOrFail(1);
         $newPaths = [];
         $oldPaths = [];
-        $updates = ['label' => $validated['label']];
+        $updates = [
+            'label' => $validated['label'],
+            'heading' => $validated['heading'],
+            'description' => $validated['description'],
+        ];
 
         foreach (['landing_image_one', 'landing_image_two'] as $field) {
             if (! $request->hasFile($field)) {
@@ -44,7 +50,7 @@ class AboutUsPageController extends Controller
                     Storage::disk('public')->delete($newPath);
                 }
 
-                return back()->withInput($request->only('label'))
+                return back()->withInput($request->only('label', 'heading', 'description'))
                     ->withErrors([$field => 'The image could not be saved. Please try again.']);
             }
 
