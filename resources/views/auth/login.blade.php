@@ -12,7 +12,7 @@
 </head>
 
 <body class="flex min-h-screen items-center justify-center bg-slate-50 p-4 text-slate-800">
-    <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl"><a href="{{ route('agropro.home') }}" class="block"><img
+    <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl"><a href="{{ route('login') }}" class="block"><img
             class="mx-auto mb-6 h-36 w-full max-w-xs object-contain" src="{{ asset('images/abj-builders-logo.png') }}"
             alt="ABJ Builders"></a>
         <p class="-mt-4 mb-6 text-center text-xs tracking-widest text-slate-400">ABJ BUILDERS PORTAL</p>

@@ -13,7 +13,7 @@
 <div id="app-shell" class="min-h-screen lg:flex">
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-navy-950 text-white shadow-2xl lg:static lg:w-64 lg:shrink-0">
 <div class="flex items-center justify-between border-b border-white/10 px-4 py-4">
-<a href="{{ route('agropro.home') }}" class="flex h-14 items-center"><img class="h-12 w-full object-contain" src="{{ asset('images/abj-builders-logo.png') }}" alt="ABJ Builders"></a>
+<a href="{{ route('login') }}" class="flex h-14 items-center"><img class="h-12 w-full object-contain" src="{{ asset('images/abj-builders-logo.png') }}" alt="ABJ Builders"></a>
 <button id="closeMenu" type="button" class="rounded-lg border border-white/10 p-2 text-xl text-slate-300 lg:hidden" aria-label="Close menu">×</button>
 </div>
 <div class="px-3 pt-5"><p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.2em] text-slate-500">Workspace</p>

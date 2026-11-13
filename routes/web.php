@@ -16,6 +16,7 @@ use App\Http\Controllers\RequestReviewController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadImportController;
+use App\Http\Controllers\PublicHomeController;
 
 Route::middleware(['auth', \App\Http\Middleware\LeadSecurityHeaders::class])->prefix('leads')->name('leads.')->group(function () {
     Route::get('/dashboard', [LeadController::class, 'dashboard'])->name('dashboard');
@@ -41,9 +42,9 @@ Route::middleware(['auth', \App\Http\Middleware\LeadSecurityHeaders::class])->pr
     Route::post('/{lead}/followups', [LeadController::class, 'storeFollowup'])->whereNumber('lead')->middleware('throttle:30,1')->name('followups.store');
 });
 
-Route::view('/agropro', 'agropro.index')->name('agropro.home');
-Route::get('/agropro/{page}.html', fn (string $page) => view('agropro.'.$page))
-    ->whereIn('page', ['index', 'about', 'service', 'testimonail', 'blog', 'contact'])
+Route::redirect('/agropro', '/login')->name('agropro.home');
+Route::get('/agropro/{page}.html', fn () => redirect()->route('login'))
+    ->where('page', '[^/]+')
     ->name('agropro.page');
 
 Route::match(['get', 'post'], '/request-review/{kind}/{id}/{decision}', RequestReviewController::class)
@@ -53,9 +54,7 @@ Route::match(['get', 'post'], '/request-review/{kind}/{id}/{decision}', RequestR
     ->middleware(['signed', 'throttle:30,1'])
     ->name('requests.review');
 
-Route::get('/', fn () => auth()->check()
-    ? redirect()->route(auth()->user()->role === 'employee' ? 'employee.workspace' : 'dashboard')
-    : redirect()->route('login'));
+Route::get('/', [PublicHomeController::class, 'index'])->name('home');
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:10,1')->name('login.submit');
@@ -101,6 +100,9 @@ Route::middleware(['auth', 'employee'])->prefix('employee')->name('employee.')->
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/about-us', [\App\Http\Controllers\Admin\AboutUsPageController::class, 'edit'])->name('admin.about-us.edit');
+    Route::put('/admin/about-us', [\App\Http\Controllers\Admin\AboutUsPageController::class, 'update'])->name('admin.about-us.update');
+
     Route::prefix('employee-salary')->name('salary.')->group(function () {
         Route::get('/', [\App\Http\Controllers\SalaryController::class, 'index'])->name('index');
         Route::get('/employees/{employee}/configuration', [\App\Http\Controllers\SalaryController::class, 'configure'])->name('configure');

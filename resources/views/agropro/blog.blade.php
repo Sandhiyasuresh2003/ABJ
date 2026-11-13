@@ -40,37 +40,10 @@
          <header class="header-area">
             <div class="container-fluid">
                <div class="row d_flex">
-                  <div class=" col-md-2 col-sm-3">
+                  <div class="col-12">
                      <div class="logo">
-                        <a href="{{ route('agropro.home') }}">Agro<span>Pro</span></a>
+                        <a href="{{ route('login') }}"><img src="{{ asset('images/abj-builders-logo.png') }}" alt="ABJ Builders" style="height:78px;width:auto;object-fit:contain"></a>
                      </div>
-                  </div>
-                  <div class="col-md-8 col-sm-9">
-                     <div class="navbar-area">
-                        <nav class="site-navbar">
-                           <ul>
-                              <li><a href="{{ route('agropro.home') }}">Home</a></li>
-                              <li><a href="{{ url('agropro/about.html') }}">About</a></li>
-                              <li><a href="{{ url('agropro/service.html') }}">Service</a></li>
-                               <li><a href="Javascript:void(0)">Projects</a></li>
-                                <li><a href="{{ url('agropro/testimonail.html') }}">Testimonail</a></li>
-                              <li><a class="active" href="{{ url('agropro/blog.html') }}">Blog</a></li>
-                              <li><a href="{{ url('agropro/contact.html') }}">Contact</a></li>
-                           </ul>
-                           <button class="nav-toggler">
-                           <span></span>
-                           </button>
-                        </nav>
-                     </div>
-                  </div>
-                  <div class="col-md-2 padd_0 d_none">
-                     <ul class="email text_align_right">
-                        <li><a href="Javascript:void(0)">Login</a>
-                        </li>
-                        <li><a href="Javascript:void(0)"><i class="fa fa-search" aria-hidden="true"></i>
-                           </a>
-                        </li>
-                     </ul>
                   </div>
                </div>
             </div>
